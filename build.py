@@ -125,44 +125,28 @@ def parse_post(path: pathlib.Path):
 
 # ---------------- 文章页模板 ----------------
 
-POST_TEMPLATE = """<!DOCTYPE html>
+POST_TEMPLATE = """<!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title} · {site}</title>
 <meta name="description" content="{summary}">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect x='4' y='4' width='24' height='24' rx='3' fill='%23b23a2c'/><text x='16' y='22' font-size='16' text-anchor='middle' fill='white' font-family='serif'>T</text></svg>">
-<link rel="stylesheet" href="../style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='black'/><text x='16' y='23' font-size='18' text-anchor='middle' fill='white' font-family='serif'>T</text></svg>">
+<style>
+  body {{ max-width: 36em; margin: 0 auto; padding: 2.5em 1em; line-height: 1.7; }}
+</style>
 </head>
 <body>
-<div class="page">
-  <header class="masthead">
-    <div class="folio">
-      <a href="../index.html" style="color:inherit;text-decoration:none">{site} · Blog</a>
-      <span>记录 · 思考 · 创造</span>
-    </div>
-    <div class="mast-main">
-      <h1 style="font-size:1.5rem"><a href="../index.html" style="color:inherit;text-decoration:none">{site}</a></h1>
-      <span class="signature"><img class="sig-light" src="../assets/signature.svg" alt=""><img class="sig-dark" src="../assets/signature-dark.svg" alt="" aria-hidden="true"></span>
-    </div>
-  </header>
-  <article class="post">
-    <p class="crumb"><a href="../index.html">← 返回目录</a></p>
-    <h1>{title}</h1>
-    <span class="when">{date}</span>
-    <div class="double"></div>
+<p><a href="../index.html">← 返回</a></p>
+<h1>{title}</h1>
+<p>{date}</p>
 {body}
-  </article>
-  <footer>
-    <span>© {year} {site}</span>
-    <span><a href="../index.html" style="color:inherit">回到首页</a></span>
-  </footer>
-</div>
+<hr>
+<p><small>© {year} {site}</small></p>
 </body>
 </html>
 """
-
 
 def main():
     index_html = INDEX.read_text(encoding="utf-8")
@@ -191,22 +175,12 @@ def main():
     # 2. 刷新首页目录
     if posts:
         rows = []
-        for i, (md, meta, _) in enumerate(posts, 1):
-            rows.append(
-                '        <li>\n'
-                '          <a class="toc-row" href="posts/%s.html">\n'
-                '            <span class="num">%02d</span>\n'
-                '            <span class="t">%s</span>\n'
-                '            <span class="leader"></span>\n'
-                '            <span class="when">%s</span>\n'
-                '          </a>\n'
-                % (md.stem, i, html.escape(meta["title"]), html.escape(meta["date"]))
-                + ('          <p class="summary">%s</p>\n' % html.escape(meta["summary"]) if meta["summary"] else "")
-                + '        </li>'
-            )
+        for md, meta, _ in posts:
+            rows.append('  <li><a href="posts/%s.html">%s</a>（%s）</li>'
+                        % (md.stem, html.escape(meta["title"]), html.escape(meta["date"])))
         block = "\n".join(rows)
     else:
-        block = '        <li class="toc-empty">\n          <svg class="brush" viewBox="0 0 120 24" aria-hidden="true">\n            <path d="M4 13 C 28 7, 62 7, 88 11 C 100 12.8, 110 12, 116 9" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>\n            <path d="M70 17.5 C 84 16.5, 98 15.5, 110 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity=".55"/>\n          </svg>\n          <p class="e1">暂无文章</p>\n          <p class="e2">第一篇正在路上，写好后会出现在这里</p>\n        </li>'
+        block = "  <li>暂无文章。</li>"
 
     before = index_html.split(START)[0] + START + "\n"
     after = "\n" + END + index_html.split(END)[1]

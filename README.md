@@ -1,15 +1,16 @@
 # TaoHub Blog（极简静态博客）
 
-纸墨风格：暖纸底色、衬线字、点线目录、艺术签名（红点收尾）。零 JavaScript，自动深色模式，手机自适应。
+极致极简：近乎裸 HTML，只有文字、链接和一枚签名。零 JavaScript、零配色，手机自适应。
 文章用 Markdown 写，一条命令生成静态页面。
 
 ## 目录结构
 
 ```
 personal-blog/
-├── index.html     首页（关于 / 文章目录 / 联系）
-├── style.css      全部样式
-├── build.py       构建脚本（Markdown → 静态页 + 刷新目录）
+├── index.html     首页（样式就内联在页面里，几行）
+├── build.py       构建脚本（Markdown → 静态页 + 刷新文章列表）
+├── assets/
+│   └── signature.svg   艺术签名（字体已内嵌）
 ├── posts/
 │   ├── xxx.md     你写的文章（Markdown）
 │   └── xxx.html   生成的文章页（不用管）
@@ -46,12 +47,10 @@ python build.py --serve  # 顺便启动本地预览：http://localhost:8000
 
 | 位置 | 改成 |
 |---|---|
-| `<h1>你的名字</h1>` 和 `<title>` | 你的名字 / 网名 |
-| `assets/signature.svg` / `signature-dark.svg` | 艺术签名（亮/暗两版，字体已内嵌，可直接当图片用） |
-| `class="vertical"` | 你的座右铭（竖排显示） |
-| 「关于」两段文字 | 自我介绍 |
-| 联系区的邮箱和各链接 | 你的邮箱和社交账号 |
+| `<h1>` 和 `<title>` | 你的名字 / 网名 |
+| 各段文字 | 直接改文字 |
 | `<meta name="description">` | 一句话介绍（影响搜索/分享预览） |
+| `assets/signature.svg` | 艺术签名（字体已内嵌，可直接当图片用） |
 
 ## 部署（免费）
 
