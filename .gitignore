@@ -1,3 +1,5 @@
 # 本地预览/系统垃圾
 .DS_Store
 Thumbs.db
+posts/*.html
+__pycache__/

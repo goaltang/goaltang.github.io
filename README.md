@@ -1,71 +1,63 @@
-# TaoHub Blog（极简静态博客）
+# TaopleOne（个人主页与静态博客）
 
-极致极简：近乎裸 HTML，只有文字、链接和一枚签名。零 JavaScript、零配色，手机自适应。
-文章用 Markdown 写，一条命令生成静态页面。
+深绿与暖橘构成首页封面；站点仍是纯静态文件。文章和 AI 使用轨迹可以通过独立的 Pages CMS 网页后台填写，保存到 GitHub 后再手动发布。
 
 ## 目录结构
 
 ```
 personal-blog/
-├── index.html     首页（样式就内联在页面里，几行）
-├── build.py       构建脚本（Markdown → 静态页 + 刷新文章列表）
-├── assets/
-│   └── signature.svg   艺术签名（字体已内嵌）
-├── posts/
-│   ├── xxx.md     你写的文章（Markdown）
-│   └── xxx.html   生成的文章页（不用管）
-└── README.md
+├── .pages.yml                在线编辑后台的表单配置
+├── .github/workflows/deploy.yml  手动发布 GitHub Pages
+├── data/ai-journey.json      AI 使用轨迹的节点与工具
+├── index.html                首页模板（构建时刷新轨迹与文章目录）
+├── build.py                  本地预览与公开构建
+├── requirements.txt          构建依赖
+├── assets/                   首页素材
+└── posts/
+    ├── *.md                  文章原稿
+    ├── images/               上传的文章图片
+    └── *.html                仅本地生成的预览页，不提交
 ```
 
-## 写一篇文章
+## 在网页后台添加内容
 
-在 `posts/` 下新建 `.md` 文件，开头写三行信息：
+后台地址：[app.pagescms.org](https://app.pagescms.org/)。用 GitHub 登录，安装 Pages CMS GitHub App 时只授权本站仓库；它会根据 `.pages.yml` 显示两个入口：
 
-```markdown
----
-title: 文章标题
-date: 2026-08-22
-summary: 一句话摘要，会显示在首页目录里。
----
+- **文章**：填写标题、日期、摘要，在富文本编辑器写正文并上传图片。`公开此文章` 默认关闭；关闭时保存为草稿，不出现在公开构建及其文章图片中。
+- **AI 探索轨迹**：分别在“大模型（LLM）”和“Agent 与 AI 工具”两个列表中增加阶段；填写时间标签、确定时才填写准确月份、阶段标题，再逐项添加模型或工具。使用记录非必填，填写后首页标签可点击展开。两条轨迹各按列表顺序显示，合计只能有一个“当前阶段”。
 
-正文，支持 # 标题、**加粗**、*斜体*、`代码`、
-> 引用、- 列表、1. 有序列表、[链接](https://...)、``` 代码块、--- 分隔线
-```
+点击后台的保存按钮只会将内容写入 GitHub 仓库。确认内容和公开状态后，再点 **发布网站**；这才会运行 GitHub Actions，将已公开文章和轨迹部署到 Pages。后台不在本站的 `/admin`，访客也不能通过首页编辑。
 
-然后运行：
+注意：如果 GitHub 仓库是公开的，保存到仓库里的草稿正文和图片仍可被人从仓库查看；`公开此文章` 只控制网站页面，不提供私密存储。敏感草稿不要保存到公开仓库。
+
+首次使用前，必须在仓库 Settings → Pages 将 **Build and deployment → Source** 改为 **GitHub Actions**，然后才连接 CMS、上传内容。若仍用 `main` 分支直接发布，后台保存的草稿文件也可能被 GitHub Pages 当作静态文件暴露。当前本地修改尚未推送或发布；切换发布方式前，公开网站不会使用这些配置。
+
+## 本地预览
 
 ```bash
-python build.py          # 生成文章页 + 更新首页目录
-python build.py --serve  # 顺便启动本地预览：http://localhost:8000
+python3 -m pip install -r requirements.txt
+python3 build.py --serve
 ```
 
-文章按日期倒序排在首页，最新的在最上面。
+打开 `http://localhost:8000`。草稿不会列在首页，但可以直接打开其 `posts/文件名.html` 本地预览。已有文章仍可编辑 `posts/*.md`；轨迹的原始内容在 `data/ai-journey.json`，正常更新不需要修改它们或 `index.html`。
 
-## 改成你自己的信息
+## 网站基础信息
 
-编辑 `index.html`（构建脚本会自动读取名字和印章同步到文章页）：
+站名、介绍和联系方式仍在 `index.html` 中；这些很少变动的基础配置暂时不在后台表单内。
 
-| 位置 | 改成 |
-|---|---|
-| `<h1>` 和 `<title>` | 你的名字 / 网名 |
-| 各段文字 | 直接改文字 |
-| `<meta name="description">` | 一句话介绍（影响搜索/分享预览） |
-| `assets/signature.svg` | 艺术签名（字体已内嵌，可直接当图片用） |
+## GitHub Pages 发布
 
-## 部署（免费）
+本站仓库为 `goaltang/goaltang.github.io`。在完成上面的 Pages 来源切换、将配置提交到 `main`，并授权 Pages CMS 后：
 
-**GitHub Pages（推荐）**
-1. GitHub 建仓库 `yourname.github.io`，把整个文件夹传上去
-2. Settings → Pages → Source 选 main 分支
-3. 几分钟后访问 `https://yourname.github.io`
+1. 登录后台添加或修改文章、AI 轨迹。
+2. 保存到 GitHub。想让文章公开时打开“公开此文章”开关；未打开则只保存草稿。
+3. 点击 **发布网站**，确认后由 `.github/workflows/deploy.yml` 运行 `python3 build.py --public-output` 并部署。不会因为保存内容就自动发布。
 
-Cloudflare Pages / Vercel / Netlify 同样可用，无需任何构建配置
-（build.py 在本地运行，平台上只放生成好的静态文件）。
+手动部署入口也在 GitHub 仓库 Actions → Publish TaopleOne → Run workflow。不要在切换到 Actions 之前将本地草稿和构建产物推到仍按分支发布的仓库。
 
 ## 自有服务器（nginx）
 
-整站纯静态，把整个文件夹原样放进 web 目录即可，**服务器上不需要装 Python**
-（build.py 只在你自己电脑上运行，生成物一起上传）。
+站点仍是静态文件。如果使用其他静态托管，需要先用 `python3 build.py --public-output 目标空目录` 构建，并只上传那个目录；不要直接上传含草稿的原始仓库。
 
 最小 nginx 配置：
 
@@ -101,7 +93,7 @@ HTTPS：`apt install certbot python3-certbot-nginx && certbot --nginx -d your.do
 - [ ] `index.html` 里名字、介绍、联系方式已替换
 - [ ] 邮箱 `mailto:` 链接正确
 - [ ] 有域名后：加回 canonical 一行（head 里有注释）
-- [ ] 本地跑过 `python build.py`，把生成的 `posts/*.html` 一起上传
+- [ ] Pages 来源已切到 GitHub Actions；公开构建只包含标记公开的文章和引用图片
 
 ## 之后可以加的东西
 

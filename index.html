@@ -3,42 +3,325 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TaoHub</title>
-<meta name="description" content="TaoHub —— Tao 的 blog：记录、思考、创造，企图用 AI 解决一切。">
+<title>TaopleOne</title>
+<meta name="description" content="Tao 的 AI 探索轨迹：大模型（LLM）与 Agent / AI 工具，两条线记录一路尝试。">
 <!-- 有正式域名后加回：<link rel="canonical" href="https://你的域名/" /> -->
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='black'/><text x='16' y='23' font-size='18' text-anchor='middle' fill='white' font-family='serif'>T</text></svg>">
 <style>
-  body { max-width: 36em; margin: 0 auto; padding: 2.5em 1em; line-height: 1.7; }
+  :root {
+    color-scheme: light;
+    --paper: #f3f0e7;
+    --pine: #1c3028;
+    --ink: #223029;
+    --muted: #536057;
+    --line: #c7cdc1;
+    --rust: #9b4225;
+    --light-rust: #f0ab84;
+    --panel: #eaece2;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background: var(--paper);
+    font-family: "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", Georgia, serif;
+    line-height: 1.65;
+  }
+  a { color: inherit; text-underline-offset: .24em; }
+  a:hover { color: var(--rust); }
+  a:focus-visible, summary:focus-visible { outline: 2px solid var(--rust); outline-offset: 4px; }
+  .skip-link { position: absolute; z-index: 10; top: -100px; left: 18px; padding: 10px 16px; background: var(--paper); color: var(--ink); }
+  .skip-link:focus { top: 12px; }
+  .shell { max-width: 1600px; margin: 0 auto; box-shadow: 0 0 0 1px var(--line); }
+  .cover { position: relative; overflow: hidden; padding: 0 clamp(24px, 6vw, 96px) 42px; color: var(--paper); background: var(--pine); }
+  .masthead { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 74px; border-bottom: 1px solid rgba(243, 240, 231, .27); }
+  .brand { display: inline-flex; align-items: center; min-height: 44px; font-family: Georgia, serif; font-size: 1.25rem; letter-spacing: -.04em; text-decoration: none; }
+  .brand:hover, .masthead a:hover { color: var(--light-rust); }
+  .masthead nav { display: flex; gap: clamp(14px, 2.5vw, 34px); }
+  .masthead nav a { display: inline-flex; align-items: center; min-height: 44px; font-size: .9rem; text-decoration: none; }
+  .cover-inner { position: relative; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(240px, .65fr); align-items: end; gap: clamp(32px, 7vw, 110px); padding-top: clamp(54px, 5.2vw, 78px); }
+  .eyebrow, .index, .hero-aside strong, .moment-when, .journey-note {
+    font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+    font-size: .78rem;
+    font-weight: 400;
+    letter-spacing: .08em;
+  }
+  .eyebrow { margin: 0 0 19px; color: var(--light-rust); }
+  h1 { max-width: 10em; margin: 0; font-size: clamp(3.5rem, 5.4vw, 6.3rem); font-weight: 400; letter-spacing: -.055em; line-height: 1.18; }
+  h1 span, h1 em { display: block; }
+  h1 em { color: var(--light-rust); font-style: normal; }
+  .hero-lead { max-width: 31em; margin: 20px 0 0; font-size: clamp(1rem, 1.35vw, 1.2rem); line-height: 1.8; }
+  .hero-aside { position: relative; min-height: 210px; padding: 25px 0 0 26px; border-left: 1px solid rgba(243, 240, 231, .35); }
+  .hero-aside::before { content: ""; position: absolute; top: 31px; left: -5px; width: 9px; height: 9px; border-radius: 50%; background: var(--light-rust); }
+  .hero-aside strong { display: block; color: var(--light-rust); }
+  .hero-aside p { max-width: 15em; margin: 18px 0 24px; font-size: 1.24rem; line-height: 1.6; }
+  .hero-aside a { display: inline-flex; align-items: center; min-height: 44px; padding: 7px 0; font-family: ui-monospace, Consolas, monospace; font-size: .83rem; }
+  .hero-aside a:hover { color: var(--light-rust); }
+  .content { padding: 0 clamp(24px, 6vw, 96px); }
+  .journey { padding: clamp(58px, 5vw, 78px) 0 0; }
+  .journey-head { display: grid; grid-template-columns: minmax(160px, .38fr) minmax(0, 1fr); gap: clamp(25px, 5vw, 80px); padding-bottom: 26px; }
+  .index { margin: 0; color: var(--rust); }
+  h2 { margin: 0; font-size: clamp(2.3rem, 4.5vw, 4.7rem); font-weight: 400; letter-spacing: -.04em; line-height: 1.2; }
+  .journey-head p:last-child { max-width: 33em; margin: 21px 0 0; color: var(--muted); font-size: 1.05rem; }
+  .track-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 0 0 67px; }
+  .track-nav a { display: flex; flex-direction: column; justify-content: space-between; min-height: 174px; padding: 23px 27px; border: 1px solid var(--line); background: #e8e9df; text-decoration: none; transition: border-color .2s, transform .2s; }
+  .track-nav a:nth-child(2) { background: #ebe4d9; }
+  .track-nav a:hover { border-color: var(--rust); transform: translateY(-3px); color: var(--ink); }
+  .track-nav small { color: var(--rust); font-family: ui-monospace, Consolas, monospace; font-size: .78rem; letter-spacing: .08em; }
+  .track-nav strong { font-size: clamp(1.55rem, 2.5vw, 2.45rem); font-weight: 400; line-height: 1.2; }
+  .track-nav .track-arrow { align-self: flex-end; color: var(--rust); font-size: 1.4rem; line-height: 1; }
+  .track { scroll-margin-top: 22px; }
+  .track + .track { margin-top: 66px; }
+  .track:last-child { padding-bottom: 100px; }
+  .track-head { display: grid; grid-template-columns: minmax(160px, .38fr) minmax(0, 1fr); gap: clamp(25px, 5vw, 80px); align-items: end; padding: 27px 0 29px; border-top: 2px solid var(--pine); }
+  .track-head h3 { margin: 0; font-size: clamp(2rem, 3.6vw, 3.5rem); font-weight: 400; letter-spacing: -.04em; line-height: 1.2; }
+  .track-head h3 span { margin-left: .35em; color: var(--rust); font-family: Georgia, serif; font-size: .56em; letter-spacing: -.02em; }
+  .track-head p:last-child { max-width: 30em; margin: 11px 0 0; color: var(--muted); }
+  .timeline { position: relative; margin: 0; padding: 0; list-style: none; counter-reset: chapter; }
+  .timeline::before { content: ""; position: absolute; z-index: 1; top: 54px; bottom: 46px; left: 34px; width: 1px; background: var(--line); }
+  .timeline > li { position: relative; display: grid; grid-template-columns: minmax(180px, .4fr) minmax(0, 1fr); grid-template-rows: auto 1fr; column-gap: clamp(22px, 5vw, 76px); min-height: 202px; padding: 42px 26px 55px 100px; border-top: 1px solid var(--line); }
+  .timeline > li::before { content: counter(chapter, decimal-leading-zero); counter-increment: chapter; position: absolute; z-index: 2; top: 37px; left: 0; display: block; width: 70px; color: var(--rust); background: var(--paper); font-family: Georgia, serif; font-size: 2.7rem; font-style: italic; letter-spacing: -.08em; line-height: 1; }
+  .moment-dot { position: absolute; z-index: 2; top: 104px; left: 30px; display: block; width: 9px; height: 9px; border-radius: 50%; background: var(--rust); }
+  .moment-when { grid-column: 1; grid-row: 1 / 3; padding-top: 12px; color: var(--rust); }
+  .moment-title { grid-column: 2; margin: 0 0 22px; font-size: clamp(1.65rem, 2.8vw, 2.65rem); font-weight: 400; letter-spacing: -.025em; line-height: 1.3; }
+  .moment-tags { grid-column: 2; display: flex; flex-wrap: wrap; align-content: start; align-items: flex-start; gap: 8px; min-width: 0; }
+  .moment-tag, .moment-detail summary { display: inline-flex; align-items: center; min-height: 44px; padding: 7px 13px; border: 1px solid var(--line); background: rgba(255, 255, 255, .27); font-size: .93rem; line-height: 1.4; overflow-wrap: anywhere; }
+  .moment-detail { max-width: 100%; }
+  .moment-detail[open] { flex-basis: 100%; }
+  .moment-detail summary { cursor: pointer; list-style: none; touch-action: manipulation; }
+  .moment-detail summary::-webkit-details-marker { display: none; }
+  .moment-detail summary::after { content: "+"; margin-left: 11px; color: var(--rust); font-family: ui-monospace, Consolas, monospace; }
+  .moment-detail[open] summary::after { content: "−"; }
+  .moment-detail summary:hover { border-color: var(--rust); }
+  .moment-copy { max-width: 38em; margin: 0; padding: 17px 20px; border: 1px solid var(--line); border-top: 0; color: var(--ink); background: var(--panel); font-size: .96rem; line-height: 1.7; }
+  .moment-current { color: var(--paper); background: var(--pine); }
+  .timeline > li.moment-current::before { color: var(--light-rust); background: var(--pine); }
+  .moment-current .moment-dot { background: var(--light-rust); }
+  .moment-current .moment-when { color: var(--light-rust); }
+  .moment-current .moment-tag, .moment-current .moment-detail summary { border-color: rgba(243, 240, 231, .5); background: rgba(243, 240, 231, .08); }
+  .moment-current .moment-detail summary::after { color: var(--light-rust); }
+  .journey-note { margin: 22px 0 0; color: var(--muted); letter-spacing: 0; line-height: 1.8; }
+  .afterword { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: clamp(30px, 8vw, 130px); padding: 78px 0 86px; border-top: 1px solid var(--line); }
+  .afterword .index { margin-bottom: 24px; }
+  .afterword h2 { font-size: clamp(2rem, 3.4vw, 3.5rem); }
+  .afterword p:last-child { max-width: 31em; margin: 15px 0 0; font-size: clamp(1.12rem, 1.6vw, 1.4rem); }
+  .signature { display: flex; justify-content: flex-end; align-self: end; margin: 0; }
+  .signature img { width: min(100%, 270px); height: auto; }
+  .lower { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(45px, 8vw, 130px); padding: 75px 0 125px; border-top: 1px solid var(--line); }
+  .lower h2 { margin: 18px 0 28px; font-size: clamp(2rem, 3.1vw, 3rem); }
+  .articles ul, .contact ul { margin: 0; padding: 0; list-style: none; }
+  .articles li { padding: 18px 0; border-top: 1px solid var(--line); color: var(--muted); }
+  .articles li a { color: var(--ink); }
+  .contact li { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 14px; min-height: 53px; padding: 5px 0; border-top: 1px solid var(--line); }
+  .contact li span { align-self: center; color: var(--muted); }
+  .contact a { display: flex; align-items: center; min-height: 44px; overflow-wrap: anywhere; }
+  footer { display: flex; justify-content: space-between; gap: 24px; padding: 28px clamp(24px, 6vw, 96px); color: var(--paper); background: var(--pine); font-family: Georgia, "Songti SC", serif; font-size: .9rem; }
+  @media (max-width: 800px) {
+    .cover-inner { grid-template-columns: 1fr; gap: 35px; padding-top: 72px; }
+    .hero-aside { min-height: 0; }
+    .hero-aside p { max-width: 32em; margin-bottom: 4px; }
+    .journey-head, .track-head { grid-template-columns: 1fr; gap: 20px; }
+    .timeline > li { grid-template-columns: 1fr; grid-template-rows: auto; gap: 0; padding-left: 95px; }
+    .moment-when { grid-column: 1; grid-row: auto; padding: 0 0 8px; }
+    .moment-title, .moment-tags { grid-column: 1; }
+    .moment-title { margin-bottom: 16px; }
+  }
+  @media (max-width: 600px) {
+    .masthead { min-height: 69px; }
+    .brand { font-size: 1.08rem; }
+    .masthead nav { gap: 14px; }
+    .masthead nav a { font-size: .81rem; }
+    .cover { padding-bottom: 32px; }
+    .cover-inner { gap: 18px; padding-top: 40px; }
+    .eyebrow { margin-bottom: 16px; }
+    h1 { font-size: clamp(3rem, 11.5vw, 4.5rem); }
+    .hero-lead { margin-top: 17px; }
+    .hero-aside { padding-top: 3px; padding-left: 18px; }
+    .hero-aside::before { top: 8px; }
+    .hero-aside p { display: none; }
+    .hero-aside a { padding: 7px 0; }
+    .journey { padding-top: 43px; }
+    .journey-head { gap: 12px; padding-bottom: 22px; }
+    .journey-head p:last-child { margin-top: 12px; font-size: .97rem; }
+    .track-nav { gap: 8px; margin-bottom: 48px; }
+    .track-nav a { min-height: 134px; padding: 16px; }
+    .track-nav strong { font-size: clamp(1.2rem, 5vw, 1.7rem); }
+    .track-head { gap: 5px; padding: 22px 0 25px; }
+    .track-head h3 { font-size: 2.1rem; }
+    .track + .track { margin-top: 56px; }
+    .track:last-child { padding-bottom: 75px; }
+    .timeline::before { left: 17px; }
+    .timeline > li { min-height: 0; padding: 28px 0 40px 58px; }
+    .timeline > li::before { top: 29px; width: 43px; font-size: 1.75rem; }
+    .moment-dot { top: 76px; left: 13px; }
+    .moment-when { padding-top: 0; }
+    .moment-title { font-size: 1.78rem; }
+    .moment-tag, .moment-detail summary { padding: 7px 10px; font-size: .88rem; }
+    .timeline > li.moment-current { margin: 0 -24px; padding-right: 24px; padding-left: 82px; }
+    .timeline > li.moment-current::before { left: 24px; }
+    .moment-current .moment-dot { left: 37px; }
+    .journey-note { font-size: .74rem; }
+    .afterword, .lower { grid-template-columns: 1fr; gap: 32px; }
+    .afterword { padding: 60px 0 70px; }
+    .signature { justify-content: flex-start; }
+    .signature img { width: 200px; }
+    .lower { padding: 62px 0 95px; }
+    .contact li { grid-template-columns: 67px minmax(0, 1fr); }
+    footer { flex-direction: column; gap: 2px; }
+  }
+  @media (max-width: 370px) {
+    h1 { font-size: 2.4rem; }
+    .journey-head h2 { font-size: 2rem; }
+    .track-nav { grid-template-columns: 1fr; }
+    .track-nav a { min-height: 110px; }
+    .masthead nav a { font-size: .75rem; }
+    .contact li { grid-template-columns: 1fr; gap: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 </style>
 </head>
 <body>
+<a class="skip-link" href="#journey">跳到 AI 探索轨迹</a>
+<div class="shell">
+  <header class="cover">
+    <div class="masthead">
+      <a class="brand" href="#top" id="top">TaopleOne</a>
+      <nav aria-label="主要导航"><a href="#journey">探索轨迹</a><a href="#articles">文章</a><a href="#about">关于我</a></nav>
+    </div>
+    <div class="cover-inner">
+      <div>
+        <p class="eyebrow">TAO / AI FIELD NOTES</p>
+        <h1><span>两条线索，</span><em>一段 AI 探索。</em></h1>
+        <p class="hero-lead">一边尝试不同的大模型，一边折腾能帮我做事的 Agent 工具。这里记录这两条线是怎么走到现在的。</p>
+      </div>
+      <div class="hero-aside">
+        <strong>从 2025.02 开始</strong>
+        <p>不是工具榜单，是一份边用边改的个人记录。</p>
+        <a href="#journey">开始阅读 ↓</a>
+      </div>
+    </div>
+  </header>
 
-<h1>TaopleOne</h1>
-<p>企图用ai解决一切</p>
-<p><img src="assets/signature.svg" alt="tangzhengtao" width="180"></p>
+  <main class="content">
+    <section class="journey" id="journey" aria-labelledby="journey-title">
+      <div class="journey-head">
+        <p class="index">01 / 探索轨迹</p>
+        <div>
+          <h2 id="journey-title">两条线，一路走。</h2>
+          <p>大模型是我试过的 LLM；Agent 一侧记录真正用过的 AI 工具。各自沿着先后顺序往下看：确切月份才写月份，带「＋」的记录可以展开。</p>
+        </div>
+      </div>
+      <nav class="track-nav" aria-label="选择探索方向">
+        <a href="#llm"><small>01 / LANGUAGE MODELS</small><strong>大模型 · LLM</strong><span class="track-arrow" aria-hidden="true">↘</span></a>
+        <a href="#agents"><small>02 / AGENT &amp; TOOLS</small><strong>Agent · AI 工具</strong><span class="track-arrow" aria-hidden="true">↘</span></a>
+      </nav>
+      <section class="track" id="llm" aria-labelledby="llm-title">
+        <div class="track-head">
+          <p class="index">01 / 大模型</p>
+          <div><h3 id="llm-title">大模型 <span>LLM</span></h3><p>从 Claude 开始，逐渐尝试 Kimi、GLM、通义千问等不同模型。</p></div>
+        </div>
+        <ol class="timeline" aria-label="大模型使用轨迹">
+<!-- LLM:START -->
+        <li>
+          <time class="moment-when" datetime="2025-02">2025.02</time>
+          <span class="moment-dot" aria-hidden="true"></span>
+          <h4 class="moment-title">从 Claude 开始</h4>
+          <div class="moment-tags"><details class="moment-detail"><summary>Claude 3.5 Sonnet</summary><p class="moment-copy">最初主要在 Cursor 中使用，后来也用到了 3.7 Sonnet。</p></details></div>
+        </li>
+        <li>
+          <span class="moment-when">随后</span>
+          <span class="moment-dot" aria-hidden="true"></span>
+          <h4 class="moment-title">继续尝试 Claude</h4>
+          <div class="moment-tags"><span class="moment-tag">Claude 3.7 Thinking</span></div>
+        </li>
+        <li>
+          <span class="moment-when">之后</span>
+          <span class="moment-dot" aria-hidden="true"></span>
+          <h4 class="moment-title">探索更多模型</h4>
+          <div class="moment-tags"><span class="moment-tag">MiMo 2.5</span><span class="moment-tag">Kimi K2.6</span><span class="moment-tag">Kimi 2.7-Code</span><span class="moment-tag">Kimi K3</span><details class="moment-detail"><summary>GLM-4 / 5.2</summary><p class="moment-copy">通过 OpenCode 的订阅使用这些模型。</p></details><span class="moment-tag">Qwen 3.6 Plus</span><span class="moment-tag">Qwen 3.7 Max</span><span class="moment-tag">Qwen 3.8 Max</span></div>
+        </li>
+<!-- LLM:END -->
+        </ol>
+        <p class="journey-note">注：通义千问系列是我用得较多的模型。</p>
+      </section>
+      <section class="track" id="agents" aria-labelledby="agents-title">
+        <div class="track-head">
+          <p class="index">02 / Agent 与 AI 工具</p>
+          <div><h3 id="agents-title">Agent <span>AI TOOLS</span></h3><p>从 Cursor 里的第一次尝试，到 CLI 和 Agent；现在主要用 Oh My Pi。</p></div>
+        </div>
+        <ol class="timeline" aria-label="Agent 与 AI 工具使用轨迹">
+<!-- AGENTS:START -->
+        <li>
+          <time class="moment-when" datetime="2025-02">2025.02</time>
+          <span class="moment-dot" aria-hidden="true"></span>
+          <h4 class="moment-title">从 IDE 入坑</h4>
+          <div class="moment-tags"><details class="moment-detail"><summary>Cursor</summary><p class="moment-copy">刚开始主要在 Cursor 中用 Claude 3.5 Sonnet，后来升级到 3.7 Sonnet。</p></details></div>
+        </li>
+        <li>
+          <span class="moment-when">随后</span>
+          <span class="moment-dot" aria-hidden="true"></span>
+          <h4 class="moment-title">配置与升级</h4>
+          <div class="moment-tags"><details class="moment-detail"><summary>MCP</summary><p class="moment-copy">早期在 Cursor 配 MCP 挺麻烦，我还去类似 smithery.ai 的收集站学习怎么弄。</p></details><details class="moment-detail"><summary>CC-Switch</summary><p class="moment-copy">当时没开较贵的 Claude 订阅，主要用它接国产或便宜的模型。后来 Claude Code 用得少了。</p></details><span class="moment-tag">Claude Code</span></div>
+        </li>
+        <li>
+          <span class="moment-when">之后</span>
+          <span class="moment-dot" aria-hidden="true"></span>
+          <h4 class="moment-title">接入 OpenCode</h4>
+          <div class="moment-tags"><span class="moment-tag">OpenCode</span></div>
+        </li>
+        <li>
+          <span class="moment-when">再后来</span>
+          <span class="moment-dot" aria-hidden="true"></span>
+          <h4 class="moment-title">Agent 与 CLI</h4>
+          <div class="moment-tags"><span class="moment-tag">Codex</span><span class="moment-tag">OpenClaw</span><span class="moment-tag">Hermes Agent</span><span class="moment-tag">千问 Code CLI</span><span class="moment-tag">Kimi Code CLI</span><details class="moment-detail"><summary>PrimeAgent</summary><p class="moment-copy">本地生图时，让它配合 GPT-5.6-Sol-Medium 帮我选模型版本、处理工作流。</p></details></div>
+        </li>
+        <li class="moment-current">
+          <span class="moment-when">最近 → 现在</span>
+          <span class="moment-dot" aria-hidden="true"></span>
+          <h4 class="moment-title">正在使用</h4>
+          <div class="moment-tags"><span class="moment-tag">Oh My Pi</span></div>
+        </li>
+<!-- AGENTS:END -->
+        </ol>
+        <p class="journey-note">注：Pi 项目只是听说过，没有算进使用记录。</p>
+      </section>
+    </section>
 
-<h2>关于</h2>
-<p>我是Tao,喜欢折腾ai这个牛马帮我干点活。</p>
+    <section class="afterword" id="about" aria-labelledby="about-title">
+      <div>
+        <p class="index">02 / 轨迹背后</p>
+        <h2 id="about-title">你好，我是 Tao。</h2>
+        <p>喜欢折腾 AI，看看它能不能真的帮我干点活。比起罗列工具，我更想记下每次尝试是怎么发生的。</p>
+      </div>
+      <figure class="signature"><img src="assets/signature.svg" alt="tangzhengtao 的手写签名" width="326" height="102" loading="lazy"></figure>
+    </section>
 
-<h2>文章</h2>
-<ul>
+    <div class="lower">
+      <section class="articles" id="articles" aria-labelledby="articles-title">
+        <p class="index">03 / 写下来的</p>
+        <h2 id="articles-title">文章与实验</h2>
+        <ul>
 <!-- POSTS:START -->
   <li>暂无文章。</li>
 <!-- POSTS:END -->
-</ul>
-
-<h2>联系</h2>
-<ul>
-  <!-- 抖音精确主页链接：电脑打开 douyin.com 进自己主页复制地址栏替换 -->
-  <li>邮箱：<a href="mailto:tangzhengtao1023@gmail.com">tangzhengtao1023@gmail.com</a></li>
-  <li>GitHub：<a href="https://github.com/goaltang">goaltang</a></li>
-  <li>Bilibili：<a href="https://space.bilibili.com/442652191">space.bilibili.com/442652191</a></li>
-  <li>抖音：<a href="https://www.douyin.com/search/94016900?type=user">94016900</a></li>
-  <li>Steam：<a href="https://steamcommunity.com/profiles/76561198846127248">Steam 主页</a></li>
-</ul>
-
-<hr>
-<p><small>© 2026 TaoHub</small></p>
-
+        </ul>
+      </section>
+      <section class="contact" aria-labelledby="contact-title">
+        <p class="index">04 / 找到我</p>
+        <h2 id="contact-title">联系</h2>
+        <ul>
+          <!-- 抖音精确主页链接：电脑打开 douyin.com 进自己主页复制地址栏替换 -->
+          <li><span>邮箱</span><a href="mailto:tangzhengtao1023@gmail.com">tangzhengtao1023@gmail.com</a></li>
+          <li><span>GitHub</span><a href="https://github.com/goaltang">goaltang</a></li>
+          <li><span>Bilibili</span><a href="https://space.bilibili.com/442652191">space.bilibili.com/442652191</a></li>
+          <li><span>抖音</span><a href="https://www.douyin.com/search/94016900?type=user">94016900</a></li>
+          <li><span>Steam</span><a href="https://steamcommunity.com/profiles/76561198846127248">Steam 主页</a></li>
+        </ul>
+      </section>
+    </div>
+  </main>
+  <footer><span>© 2026 TaopleOne</span><span>继续往前走，继续记下来。</span></footer>
+</div>
 </body>
 </html>

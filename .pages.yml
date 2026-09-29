@@ -1,0 +1,163 @@
+media:
+  - name: images
+    label: 文章图片
+    input: posts/images
+    output: /posts/images
+    categories: [image]
+    rename: safe
+
+content:
+  - name: posts
+    label: 文章
+    type: collection
+    path: posts
+    format: yaml-frontmatter
+    filename: "{year}-{month}-{day}-{hour}-{minute}-{second}.md"
+    view:
+      fields: [title, published, date]
+      primary: title
+      sort: [date, title]
+      default:
+        sort: date
+        order: desc
+    fields:
+      - name: title
+        label: 标题
+        type: string
+        required: true
+      - name: date
+        label: 日期
+        type: date
+        required: true
+        options:
+          format: yyyy-MM-dd
+      - name: summary
+        label: 首页摘要
+        type: text
+        required: true
+      - name: published
+        label: 公开此文章
+        type: boolean
+        default: false
+        description: 关闭时只保存在仓库中；公开构建不会包含文章和其图片。
+      - name: body
+        label: 正文
+        type: rich-text
+        options:
+          media: images
+          format: markdown
+
+  - name: journey
+    label: AI 探索轨迹
+    type: file
+    path: data/ai-journey.json
+    format: json
+    fields:
+      - name: llm
+        label: 大模型（LLM）
+        type: object
+        list:
+          min: 1
+          collapsible:
+            collapsed: true
+            summary: "{title}"
+        fields:
+          - name: when
+            label: 时间标签
+            type: string
+            required: true
+            description: 确定月份才写月份；否则写「随后」等。按列表顺序显示。
+          - name: date
+            label: 准确月份
+            type: string
+            pattern: "^$|^[0-9]{4}-(0[1-9]|1[0-2])$"
+            description: 确定时填写 YYYY-MM；不确定请留空。
+          - name: title
+            label: 阶段标题
+            type: string
+            required: true
+          - name: current
+            label: 当前阶段
+            type: boolean
+            default: false
+            description: 两条轨迹合计至多一个当前阶段。
+          - name: tools
+            label: 大模型
+            type: object
+            list:
+              min: 1
+              collapsible:
+                collapsed: true
+                summary: "{name}"
+            fields:
+              - name: name
+                label: 模型名称
+                type: string
+                required: true
+              - name: note
+                label: 使用记录
+                type: text
+                description: 填写后，首页标签可点击展开。
+              - name: link
+                label: 延伸阅读链接
+                type: string
+                description: 可填 https:// 开头的网址或 posts/文章名.html。
+      - name: agents
+        label: Agent 与 AI 工具
+        type: object
+        list:
+          min: 1
+          collapsible:
+            collapsed: true
+            summary: "{title}"
+        fields:
+          - name: when
+            label: 时间标签
+            type: string
+            required: true
+            description: 确定月份才写月份；否则写「随后」等。按列表顺序显示。
+          - name: date
+            label: 准确月份
+            type: string
+            pattern: "^$|^[0-9]{4}-(0[1-9]|1[0-2])$"
+            description: 确定时填写 YYYY-MM；不确定请留空。
+          - name: title
+            label: 阶段标题
+            type: string
+            required: true
+          - name: current
+            label: 当前阶段
+            type: boolean
+            default: false
+            description: 两条轨迹合计至多一个当前阶段。
+          - name: tools
+            label: AI 工具
+            type: object
+            list:
+              min: 1
+              collapsible:
+                collapsed: true
+                summary: "{name}"
+            fields:
+              - name: name
+                label: 工具名称
+                type: string
+                required: true
+              - name: note
+                label: 使用记录
+                type: text
+                description: 填写后，首页标签可点击展开。
+              - name: link
+                label: 延伸阅读链接
+                type: string
+                description: 可填 https:// 开头的网址或 posts/文章名.html。
+
+actions:
+  - name: deploy-site
+    label: 发布网站
+    workflow: deploy.yml
+    ref: main
+    confirm:
+      title: 确认发布？
+      message: 仅发布已标记公开的文章和当前 AI 使用轨迹；草稿不会出现在网站上。
+      button: 发布
