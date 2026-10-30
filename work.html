@@ -25,6 +25,8 @@
 <link rel="stylesheet" href="assets/css/site.css">
 <script>
   document.documentElement.classList.add("js");
+  // 同首页：内容靠 JS 填，别让浏览器把上一页的滚动位置恢复到这里
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
   if (sessionStorage.getItem("cut")) document.documentElement.classList.add("is-cut-in");
   setTimeout(function () { if (!document.documentElement.classList.contains("is-ready")) document.documentElement.classList.remove("js"); }, 4000);
 </script>

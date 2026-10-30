@@ -26,6 +26,9 @@
 <link rel="stylesheet" href="assets/css/site.css">
 <script>
   document.documentElement.classList.add("js");
+  // 关掉浏览器的滚动位置恢复：作品列表是 JS 才渲染出来的，恢复出来的位置会落在只有首屏的空文档底部，
+  // 一进站就停在半腰、字标被切掉。没锚点时由 motion.js 在渲染完后按回顶部。
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
   if (sessionStorage.getItem("cut")) document.documentElement.classList.add("is-cut-in");
   // 脚本没加载出来时，别让开场动效把内容一直藏着
   setTimeout(function () { if (!document.documentElement.classList.contains("is-ready")) document.documentElement.classList.remove("js"); }, 4000);

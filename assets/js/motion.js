@@ -31,6 +31,17 @@
     else target.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
   }
 
+  // 渲染完才按回顶部：在此之前用户自己滑过，就别再把位置抢回去。
+  var movedByUser = false;
+  ["wheel", "touchstart", "keydown", "pointerdown"].forEach(function (ev) {
+    window.addEventListener(ev, function () { movedByUser = true; }, { passive: true, once: true });
+  });
+
+  function toTop() {
+    if (lenis) lenis.scrollTo(0, { immediate: true });
+    else window.scrollTo(0, 0);
+  }
+
   // 顶栏：往下滚时收起，往上滚时出来；过了首屏给顶栏一块实底，
   // 米白的拆解卷上字标和「菜单」也看得清（窄屏 CSS 才用这块底色）
   var lastY = window.scrollY;
@@ -260,9 +271,14 @@
     if (!scope) { hero(); navSpy(); }
     if (ST) ST.refresh();
     requestAnimationFrame(function () { root.classList.add("is-ready"); });
-    if (location.hash && !scope) {
-      var target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    if (!scope) {
+      // 列表刚渲染完，Lenis 记的文档高度还是旧的；不重量一次，锚点会被夹在半路
+      if (lenis) lenis.resize();
+      // 带锚点：滚到那一节。没锚点（正常打开首页）：渲染完把位置按回顶部——
+      // 浏览器可能已经把恢复的滚动位置应用在只渲染了首屏的空文档上
+      var target = location.hash ? document.getElementById(decodeURIComponent(location.hash.slice(1))) : null;
       if (target) setTimeout(function () { scrollToTarget(target); }, 60);
+      else if (!location.hash && !movedByUser) toTop();
     }
   }
 
