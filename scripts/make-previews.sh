@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 从本机原片做两样东西，仓库里不放任何 mp4：
-#   out/web/<id>.mp4   预览片：H.264 + faststart，短边 ≤720，目标约 10MB → 上传到 Release「web」，部署时下载进站点 films/
+#   out/web/<id>.mp4   预览片：H.264 High + faststart，短边 ≤720，视频码率封顶 1.2M 且不超过原片（平均约 1 Mbps），静音片不出音轨、有声片 AAC 96k → 上传到 Release「web」，部署时下载进站点 films/
 #   out/web/reel.mp4   首屏混剪：每支截 2.4 秒，静音，1280×720 → 同上
 #   out/web/<id>-loop.mp4 短循环：3.5 秒、短边 ≤480、无音轨，约 300KB，给首屏胶片墙和悬停/点按预览用 → 同上
 #   out/full/<id>.mp4  原画质完整版（原片改名，不重压）→ 上传到 Release「films」，给「下载完整版」按钮用
@@ -12,7 +12,7 @@
 #   scripts/make-previews.sh --loops          只重做短循环（从 films/ 或 out/web/ 已有的预览片切）
 #   scripts/make-previews.sh --local [id…]    只做预览片、短循环和混剪，直接放进站点 films/（被 .gitignore），本地预览用
 #
-# 环境变量：SRC_ROOT（原片根目录，默认 /mnt/d）、TARGET_MB（预览片目标大小，默认 10）
+# 环境变量：SRC_ROOT（原片根目录，默认 /mnt/d）；预览片可用 CRF（默认 20）、MAXKBPS（默认 1200）覆盖
 # 预览片已存在且比原片新时跳过；ffmpeg 失败时继续做下一支，最后以 1 退出。
 #
 # 上传（由 CLI管家 执行，本脚本不上传）：
@@ -22,7 +22,9 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 SRC_ROOT=${SRC_ROOT:-/mnt/d}
-TARGET_MB=${TARGET_MB:-10}
+# 预览片编码参数：CRF 20，maxrate = min(MAXKBPS, 源码率)、bufsize = 2×maxrate → 平均约 1 Mbps，720p 封顶
+CRF=${CRF:-20}
+MAXKBPS=${MAXKBPS:-1200}   # 视频码率封顶，约 1 Mbps；音频另算
 WEB=out/web
 FULL=out/full
 only_reel=0
@@ -60,19 +62,23 @@ done
 
 probe() { ffprobe -v error -select_streams v:0 -show_entries "$1" -of csv=p=0 "$2" | head -n1 | tr -d ',\r'; }
 
-# 预览片：短边缩到 720；码率按「约 TARGET_MB」算上限，短片用 CRF 自然更小
+# 预览片：短边缩到 720，H.264 High，CRF 20，maxrate 封顶 min(MAXKBPS, 源视频码率)（约 1 Mbps），
+# 窄带（国内拉 GitHub Pages 只有 ~400KB/s）也能连续播；无音轨的片子不出音轨，有声的 AAC 96k。
+# 封顶跟着源码率走，所以重跑一遍不会把已经压过的片子越压越大。
 webcut() {   # webcut <id>
   local id=$1 src=${SRC[$1]} out=$WEB/$1.mp4
   [ -f "$src" ] || { echo "✗ $id: 找不到原片 $src" >&2; fail=1; return; }
   if [ -f "$out" ] && [ ! "$src" -nt "$out" ]; then echo "  $id 已是最新，跳过"; return; fi
-  local dur kbps
-  dur=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$src")
-  kbps=$(awk -v d="$dur" -v mb="$TARGET_MB" 'BEGIN { k = int(mb * 8192 / d) - 128; if (k > 2500) k = 2500; if (k < 500) k = 500; print k }')
+  local srate cap
+  srate=$(probe stream=bit_rate "$src")
+  cap=$MAXKBPS
+  if [ -n "$srate" ] && [ "$srate" != "N/A" ] && [ $((srate / 1000)) -lt "$cap" ]; then cap=$((srate / 1000)); fi
   if ffmpeg -v error -y -i "$src" -map 0:v:0 -map '0:a:0?' \
       -vf "scale='if(gte(iw,ih),-2,min(720,iw))':'if(gte(iw,ih),min(720,ih),-2)':flags=lanczos,format=yuv420p" \
-      -c:v libx264 -profile:v high -level 4.0 -preset slow -crf 23 -maxrate "${kbps}k" -bufsize "$((kbps * 2))k" \
-      -c:a aac -b:a 128k -ac 2 -movflags +faststart -tag:v avc1 -f mp4 "$out.part"; then
-    mv "$out.part" "$out"; echo "  $id  $(du -h "$out" | cut -f1)  (上限 ${kbps}k)"
+      -c:v libx264 -profile:v high -level 4.0 -preset slow -crf "$CRF" \
+      -maxrate "${cap}k" -bufsize "$((cap * 2))k" \
+      -c:a aac -b:a 96k -ac 2 -movflags +faststart -tag:v avc1 -f mp4 "$out.part"; then
+    mv "$out.part" "$out"; echo "  $id  $(du -h "$out" | cut -f1)  (封顶 ${cap}k)"
   else
     rm -f "$out.part"; echo "✗ $id: ffmpeg 压不出预览片（$src）" >&2; fail=1
   fi
