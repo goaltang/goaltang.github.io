@@ -1,0 +1,21 @@
+# 作品 id 与本机原片（相对 SRC_ROOT，默认 /mnt/d，即 D:\）。id 必须和 data/works.json 一致。
+# 第三列可选：首屏混剪从第几秒截一段；留空则这支不进混剪。
+# id	原片	混剪起点
+matrix-transform	ManimGX/01-matrix-transform/MatrixTransformsPlane.mp4	16
+tcp-handshake	ManimGX/02-tcp-handshake/TcpThreeWayHandshake.mp4
+pythagoras	ManimGX/03-pythagoras/PythagoreanProof.mp4	70
+projectile	ManimGX/05-projectile/ProjectileMotion.mp4	30
+roadster	ManimGX/07-roadster/RoadsterPrinciple_voiced.mp4	20
+dong-force	ManimGX/08-dong-joint/DongForceTransfer.mp4
+four-stroke	ManimGX/09-four-stroke/four-stroke_voiced.mp4	29
+definite-integral	ManimGX/DefiniteIntegralArea.mp4	14
+dong-joint	anatomy-figures/dong-chuandou-joint/video/dong-joint.mp4	12
+moutai-zeng	anatomy-figures/moutai-zeng/moutai-zeng-video.mp4	20
+zhongan-water-mills	anatomy-figures/zhongan-water-mills/zhongan-water-mills-video.mp4	25
+fast-dawodang	opuscar/fast-dawodang/dawodang.mp4	3
+huajiang-bridge	opuscar/huajiang-bridge/huajiang-bridge.mp4	12
+hush-noob-frenzy	opuscar/hush-noob-frenzy/hush-noob-frenzy.mp4	18
+dingfengbo	anidoodle/dingfengbo.mp4	6
+whale	anidoodle/whale.mp4	8
+star-cc	anidoodle/claude-star-cc.mp4	10
+star-grok	anidoodle/claude-star-grok.mp4

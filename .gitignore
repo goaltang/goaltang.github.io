@@ -3,3 +3,11 @@
 Thumbs.db
 posts/*.html
 __pycache__/
+
+# 本地预览用的视频（线上从 Release「web」下载）与压制产物，仓库里不放 mp4
+films/
+out/
+*.mp4
+
+DESIGN.md
+mobile-shots/

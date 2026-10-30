@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+# 从本机原片做两样东西，仓库里不放任何 mp4：
+#   out/web/<id>.mp4   预览片：H.264 + faststart，短边 ≤720，目标约 10MB → 上传到 Release「web」，部署时下载进站点 films/
+#   out/web/reel.mp4   首屏混剪：每支截 2.4 秒，静音，1280×720 → 同上
+#   out/full/<id>.mp4  原画质完整版（原片改名，不重压）→ 上传到 Release「films」，给「下载完整版」按钮用
+#
+# 用法：
+#   scripts/make-previews.sh                  做全部预览片、混剪和完整版
+#   scripts/make-previews.sh whale star-cc    只做这几个 id 的预览片和完整版
+#   scripts/make-previews.sh --reel           只重做首屏混剪
+#   scripts/make-previews.sh --local [id…]    只做预览片和混剪，直接放进站点 films/（被 .gitignore），本地预览用
+#
+# 环境变量：SRC_ROOT（原片根目录，默认 /mnt/d）、TARGET_MB（预览片目标大小，默认 10）
+# 预览片已存在且比原片新时跳过；ffmpeg 失败时继续做下一支，最后以 1 退出。
+#
+# 上传（由 CLI管家 执行，本脚本不上传）：
+#   gh release upload web   out/web/*.mp4  --clobber --repo goaltang/goaltang.github.io
+#   gh release upload films out/full/*.mp4 --clobber --repo goaltang/goaltang.github.io
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+SRC_ROOT=${SRC_ROOT:-/mnt/d}
+TARGET_MB=${TARGET_MB:-10}
+WEB=out/web
+FULL=out/full
+only_reel=0
+local_mode=0
+ids=()
+for arg in "$@"; do
+  case $arg in
+    --reel) only_reel=1 ;;
+    --local) local_mode=1 ;;
+    -h|--help) sed -n '2,20p' "$0"; exit 0 ;;
+    *) ids+=("$arg") ;;
+  esac
+done
+if [ "$local_mode" = 1 ]; then WEB=films; FULL=; fi
+mkdir -p "$WEB"
+[ -n "$FULL" ] && mkdir -p "$FULL"
+
+fail=0
+declare -A SRC START
+order=()
+while IFS=$'\t' read -r id path start; do
+  [[ -z "$id" || "$id" == \#* ]] && continue
+  SRC[$id]="$SRC_ROOT/$path"
+  START[$id]=${start:-}
+  order+=("$id")
+done < scripts/sources.tsv
+
+for id in "${ids[@]}"; do
+  [ -n "${SRC[$id]:-}" ] || { echo "✗ $id 不在 scripts/sources.tsv 里" >&2; exit 1; }
+done
+[ ${#ids[@]} -gt 0 ] || ids=("${order[@]}")
+
+probe() { ffprobe -v error -select_streams v:0 -show_entries "$1" -of csv=p=0 "$2" | head -n1 | tr -d ',\r'; }
+
+# 预览片：短边缩到 720；码率按「约 TARGET_MB」算上限，短片用 CRF 自然更小
+webcut() {   # webcut <id>
+  local id=$1 src=${SRC[$1]} out=$WEB/$1.mp4
+  [ -f "$src" ] || { echo "✗ $id: 找不到原片 $src" >&2; fail=1; return; }
+  if [ -f "$out" ] && [ ! "$src" -nt "$out" ]; then echo "  $id 已是最新，跳过"; return; fi
+  local dur kbps
+  dur=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$src")
+  kbps=$(awk -v d="$dur" -v mb="$TARGET_MB" 'BEGIN { k = int(mb * 8192 / d) - 128; if (k > 2500) k = 2500; if (k < 500) k = 500; print k }')
+  if ffmpeg -v error -y -i "$src" -map 0:v:0 -map '0:a:0?' \
+      -vf "scale='if(gte(iw,ih),-2,min(720,iw))':'if(gte(iw,ih),min(720,ih),-2)':flags=lanczos,format=yuv420p" \
+      -c:v libx264 -profile:v high -level 4.0 -preset slow -crf 23 -maxrate "${kbps}k" -bufsize "$((kbps * 2))k" \
+      -c:a aac -b:a 128k -ac 2 -movflags +faststart -tag:v avc1 -f mp4 "$out.part"; then
+    mv "$out.part" "$out"; echo "  $id  $(du -h "$out" | cut -f1)  (上限 ${kbps}k)"
+  else
+    rm -f "$out.part"; echo "✗ $id: ffmpeg 压不出预览片（$src）" >&2; fail=1
+  fi
+}
+
+# 完整版：原片原样复制，只改名
+fullcopy() {
+  local id=$1 src=${SRC[$1]} out=$FULL/$1.mp4
+  [ -f "$src" ] || return 0
+  if [ -f "$out" ] && [ ! "$src" -nt "$out" ]; then return; fi
+  cp "$src" "$out" && echo "  $id 完整版 $(du -h "$out" | cut -f1)"
+}
+
+# 混剪：横屏铺满裁成 16:9；竖屏放中间，两边垫一层模糊放大的自己
+reel() {
+  local inputs=() filters="" n=0 seg=2.4
+  for id in "${order[@]}"; do
+    local start=${START[$id]} src=${SRC[$id]}
+    [ -n "$start" ] && [ -f "$src" ] || continue
+    local w h
+    w=$(probe stream=width "$src"); h=$(probe stream=height "$src")
+    inputs+=(-ss "$start" -t "$seg" -i "$src")
+    if [ "$w" -ge "$h" ]; then
+      filters+="[$n:v]scale=1280:720:force_original_aspect_ratio=increase:flags=lanczos,crop=1280:720,setsar=1,fps=30[v$n];"
+    else
+      filters+="[$n:v]split[a$n][b$n];[a$n]scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,boxblur=24:2,eq=brightness=-0.12[bg$n];[b$n]scale=-2:720:flags=lanczos[fg$n];[bg$n][fg$n]overlay=(W-w)/2:0,setsar=1,fps=30[v$n];"
+    fi
+    n=$((n + 1))
+  done
+  [ "$n" -gt 0 ] || { echo "✗ 混剪：sources.tsv 里没有一支填了起点" >&2; fail=1; return; }
+  local chain=""
+  for ((i = 0; i < n; i++)); do chain+="[v$i]"; done
+  if ffmpeg -v error -y "${inputs[@]}" -filter_complex "${filters}${chain}concat=n=$n:v=1:a=0,format=yuv420p[out]" -map "[out]" \
+      -c:v libx264 -profile:v high -level 4.0 -preset slow -crf 27 -an -movflags +faststart -tag:v avc1 "$WEB/reel.mp4.part.mp4"; then
+    mv "$WEB/reel.mp4.part.mp4" "$WEB/reel.mp4"; echo "  reel  $n 段  $(du -h "$WEB/reel.mp4" | cut -f1)"
+  else
+    rm -f "$WEB/reel.mp4.part.mp4"; echo "✗ 混剪：ffmpeg 失败" >&2; fail=1
+  fi
+}
+
+if [ "$only_reel" = 0 ]; then
+  echo "预览片 → $WEB/"
+  for id in "${ids[@]}"; do webcut "$id"; done
+  if [ -n "$FULL" ]; then
+    echo "完整版 → $FULL/"
+    for id in "${ids[@]}"; do fullcopy "$id"; done
+  fi
+fi
+if [ "$only_reel" = 1 ] || [ $# -eq 0 ] || { [ "$local_mode" = 1 ] && [ ${#ids[@]} -eq ${#order[@]} ]; }; then
+  echo "首屏混剪 → $WEB/reel.mp4"
+  reel
+fi
+du -sh "$WEB"
+[ "$fail" = 0 ] || exit 1

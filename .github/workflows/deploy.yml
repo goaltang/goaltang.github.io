@@ -1,12 +1,23 @@
+# 构建作品集 → 从 Release「web」下载预览片进 films/ → 部署 GitHub Pages。
+# 仓库里不放 mp4：≤720p 预览片在 Release「web」（Pages 以 video/mp4 提供，Safari 才能播）；原画质完整版在 Release「films」，只给下载按钮用。
+# 预览片由 scripts/make-previews.sh 压制，CLI管家 上传。
 name: Publish TaopleOne
 
 on:
+  push:
+    branches: [main]
+    paths: ['index.html', 'work.html', 'assets/**', 'data/works.json', 'covers/**', 'figures/**', '.github/workflows/deploy.yml']
   workflow_dispatch:
     inputs:
       payload:
         description: Pages CMS action payload
         required: false
         type: string
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 concurrency:
   group: github-pages
@@ -16,29 +27,37 @@ jobs:
   build:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - run: python3 -m pip install -r requirements.txt
-      - run: python3 build.py --public-output "$RUNNER_TEMP/taople-site"
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v4
+      - run: python3 build.py --public-output _site
+      - run: gh release download web --repo "$GITHUB_REPOSITORY" --pattern '*.mp4' --dir _site/films
+        env:
+          GH_TOKEN: ${{ github.token }}
+      # works.json 里每一部有视频的作品都要有预览片，否则卡片会打开一个放不出来的播放器
+      - name: check that every listed film is in the site
+        run: |
+          expected=$(python3 -c "import json; print('\n'.join(w['id'] for w in json.load(open('data/works.json'))['works'] if w.get('video', True) and w.get('status') != 'soon'))")
+          [ -n "$expected" ] || { echo "::error::data/works.json lists no work with a video"; exit 1; }
+          missing=0
+          for id in $expected reel; do
+            [ -s "_site/films/$id.mp4" ] || { echo "::error::films/$id.mp4 is not in the 'web' release (run scripts/make-previews.sh $id and upload out/web/$id.mp4)"; missing=1; }
+          done
+          echo "$(echo "$expected" | wc -l) films expected, $(ls _site/films | wc -l) downloaded"
+          [ "$missing" = 0 ]
+      - uses: actions/upload-pages-artifact@v5
         with:
-          path: ${{ runner.temp }}/taople-site
+          path: _site
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

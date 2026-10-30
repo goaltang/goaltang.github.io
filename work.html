@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>作品 · TaopleOne</title>
+<meta name="description" content="TaopleOne 的 AI 动画作品。">
+<meta name="theme-color" content="#050505">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23050505'/><circle cx='16' cy='16' r='7' fill='%23ff5a00'/><path d='M3 3h5M3 3v5M29 3h-5M29 3v5M3 29h5M3 29v-5M29 29h-5M29 29v-5' stroke='%23ece8df' stroke-width='2' fill='none'/></svg>">
+<link rel="preload" href="assets/fonts/archivo-wdth.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/site.css">
+<script>
+  document.documentElement.classList.add("js");
+  if (sessionStorage.getItem("cut")) document.documentElement.classList.add("is-cut-in");
+  setTimeout(function () { if (!document.documentElement.classList.contains("is-ready")) document.documentElement.classList.remove("js"); }, 4000);
+</script>
+<script src="assets/vendor/gsap.min.js" defer></script>
+<script src="assets/vendor/ScrollTrigger.min.js" defer></script>
+<script src="assets/vendor/lenis.min.js" defer></script>
+<script src="assets/js/common.js" defer></script>
+<script src="assets/js/motion.js" defer></script>
+<script src="assets/js/work.js" defer></script>
+</head>
+<body class="work-page">
+<a class="skip" href="#work">跳到作品</a>
+
+<header class="top">
+  <a class="top-home" href="./" aria-label="TaopleOne 首页"><i class="rec" aria-hidden="true"></i>TaopleOne</a>
+  <p class="top-tc" aria-hidden="true"><span>TC</span><b data-tc>00:00:00:00</b></p>
+  <nav class="top-nav" id="topnav" aria-label="分区">
+    <a href="./#manimgx"><small>01</small>讲解</a>
+    <a href="./#anatomy"><small>02</small>拆解</a>
+    <a href="./#opuscar"><small>03</small>短片</a>
+    <a href="./#anidoodle"><small>04</small>动画</a>
+    <a href="#contact"><small>05</small>联系</a>
+  </nav>
+  <button class="menu-btn" type="button" aria-expanded="false" aria-controls="topnav">
+    <span class="menu-bars" aria-hidden="true"><i></i><i></i></span><span class="menu-label">菜单</span>
+  </button>
+</header>
+
+<main id="work" class="work">
+  <noscript><p class="noscript">作品页需要 JavaScript。</p></noscript>
+</main>
+
+<footer class="foot" id="contact">
+  <div class="foot-grid">
+    <p class="chapter-no" aria-hidden="true">05</p>
+    <div class="foot-main">
+      <h2>想合作，或者想看哪个知识点，写信给我。</h2>
+      <a class="foot-mail magnetic" href="mailto:tangzhengtao1023@gmail.com">tangzhengtao1023@gmail.com</a>
+    </div>
+    <dl class="credits">
+      <div><dt>制作</dt><dd>TaopleOne</dd></div>
+      <div><dt>视频</dt><dd><a class="magnetic" href="https://space.bilibili.com/442652191" rel="me">Bilibili</a></dd></div>
+      <div><dt>代码</dt><dd><a class="magnetic" href="https://github.com/goaltang" rel="me">GitHub</a></dd></div>
+    </dl>
+  </div>
+  <small class="foot-copy">© 2026 TaopleOne。作品由 AI 参与制作。</small>
+</footer>
+
+<div class="cursor" aria-hidden="true"><span class="cursor-dot"></span><span class="cursor-ring"><b></b></span></div>
+<div class="shutter" aria-hidden="true"><span>TaopleOne</span></div>
+<div class="grain" aria-hidden="true"></div>
+</body>
+</html>

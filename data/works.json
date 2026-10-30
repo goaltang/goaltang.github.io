@@ -1,0 +1,340 @@
+{
+  "site": {
+    "films": "films/",
+    "fullBase": "https://github.com/goaltang/goaltang.github.io/releases/download/films/",
+    "reel": "films/reel.mp4"
+  },
+  "sections": [
+    {
+      "id": "manimgx",
+      "title": "ManimGX 讲解",
+      "ratio": "16:9",
+      "desc": "用 Manim 一步步画出来的知识点，按学科放。卡片右下角标着适合哪个阶段。",
+      "groupBy": "subject",
+      "groups": [
+        {
+          "id": "math",
+          "title": "数学"
+        },
+        {
+          "id": "cs",
+          "title": "计算机"
+        },
+        {
+          "id": "physics",
+          "title": "物理（工程）"
+        }
+      ],
+      "name": "讲解",
+      "brand": "ManimGX"
+    },
+    {
+      "id": "anatomy",
+      "title": "Anatomy 可交互拆解",
+      "ratio": "16:9",
+      "desc": "把机器和老手艺拆成等轴测图。每张图都能看视频，也能自己拖、自己按，看它怎么动。",
+      "groupBy": "group",
+      "groups": [
+        {
+          "id": "textbook",
+          "title": "课本系列"
+        },
+        {
+          "id": "life",
+          "title": "生活系列"
+        }
+      ],
+      "name": "拆解",
+      "brand": "Anatomy"
+    },
+    {
+      "id": "opuscar",
+      "title": "lemo-opuscar 知识短片",
+      "ratio": "mixed",
+      "desc": "一分钟讲清一件事。横屏的放左边，竖屏的收在长条里滑着看。",
+      "name": "短片",
+      "brand": "lemo-opuscar"
+    },
+    {
+      "id": "anidoodle",
+      "title": "anidoodle 动画",
+      "ratio": "9:16",
+      "desc": "全部用代码画出来的竖屏小动画，没有字幕，只有画面和声音。",
+      "name": "动画",
+      "brand": "anidoodle"
+    }
+  ],
+  "works": [
+    {
+      "id": "matrix-transform",
+      "series": "manimgx",
+      "subject": "math",
+      "level": "大学",
+      "title": "矩阵如何变换平面",
+      "blurb": "旋转、拉伸、剪切三步走，看懂矩阵的每一列就是基向量 i、j 变换后的位置。考研数学二可视化系列第 1 集。",
+      "duration": 26,
+      "ratio": "16:9"
+    },
+    {
+      "id": "pythagoras",
+      "series": "manimgx",
+      "subject": "math",
+      "level": "初中",
+      "title": "勾股定理：拼图证明",
+      "blurb": "把四个全等直角三角形挪来挪去，空出来的面积从 c² 变成 a² + b²，不用一个公式也能看出定理为什么成立。",
+      "duration": 150,
+      "ratio": "16:9"
+    },
+    {
+      "id": "definite-integral",
+      "series": "manimgx",
+      "subject": "math",
+      "level": "大学",
+      "title": "定积分：曲线下的面积",
+      "blurb": "用越来越细的矩形去逼近 y = x² 下面的面积，矩形无限细时，和就变成了定积分。",
+      "duration": 21,
+      "ratio": "16:9"
+    },
+    {
+      "id": "tcp-handshake",
+      "series": "manimgx",
+      "subject": "cs",
+      "level": "大学",
+      "title": "TCP 三次握手",
+      "blurb": "SYN、SYN-ACK、ACK 三个包来回一趟，客户端和服务器各自确认对方能收也能发，连接才算建好。",
+      "duration": 25,
+      "ratio": "16:9"
+    },
+    {
+      "id": "projectile",
+      "series": "manimgx",
+      "subject": "physics",
+      "level": "高中",
+      "title": "平抛运动",
+      "blurb": "水平方向匀速，竖直方向自由落体，拆开看再合起来，最后带着做一道例题。",
+      "duration": 156,
+      "ratio": "16:9"
+    },
+    {
+      "id": "roadster",
+      "series": "manimgx",
+      "subject": "physics",
+      "level": "初中",
+      "title": "倒挂的车为什么不掉",
+      "blurb": "车底的风扇抽走空气，大气压把车按在路面上；冷气推进器往外喷气调整姿态。用压强和摩擦力讲 Roadster 的原理，有配音。",
+      "duration": 116,
+      "ratio": "16:9"
+    },
+    {
+      "id": "dong-force",
+      "series": "manimgx",
+      "subject": "physics",
+      "level": "初中",
+      "title": "侗族榫卯：力怎么传下去",
+      "blurb": "屋顶的重量经檩条、柱子落到地面；鼓楼出挑时，瓜柱先把力压到穿枋上。羊角销和木楔让节点越穿越紧。",
+      "duration": 51,
+      "ratio": "16:9"
+    },
+    {
+      "id": "four-stroke",
+      "series": "manimgx",
+      "also": [
+        "anatomy"
+      ],
+      "subject": "physics",
+      "group": "textbook",
+      "level": "初中",
+      "title": "四冲程汽油机",
+      "blurb": "吸气、压缩、做功、排气。飞轮转两周，活塞往复两次，对外只做功一次。配音加背景音乐，机器动画来自 Anatomy。",
+      "duration": 58,
+      "ratio": "16:9",
+      "figure": "four-stroke-engine"
+    },
+    {
+      "id": "dong-joint",
+      "series": "anatomy",
+      "group": "life",
+      "title": "侗族穿斗式榫卯节点",
+      "blurb": "柱上开贯通卯口，穿枋越穿越紧，羊角销锁住，木楔挤紧。五步拆开看一个节点。",
+      "duration": 40,
+      "ratio": "16:9",
+      "figure": "dong-chuandou-joint"
+    },
+    {
+      "id": "moutai-zeng",
+      "series": "anatomy",
+      "group": "life",
+      "title": "茅台酒甑蒸馏",
+      "blurb": "酒师不看仪表，只看酒面上的「花」。看花摘酒，是怎么判断酒精度的？",
+      "duration": 44,
+      "ratio": "16:9",
+      "figure": "moutai-zeng"
+    },
+    {
+      "id": "zhongan-water-mills",
+      "series": "anatomy",
+      "group": "life",
+      "title": "重安江水碾群",
+      "blurb": "沙洲把江水分成高低两汊，引水冲击卧式水轮，立轴带动石滚轮碾磨。",
+      "duration": 56,
+      "ratio": "16:9",
+      "figure": "zhongan-water-mills"
+    },
+    {
+      "id": "atwood-machine",
+      "series": "anatomy",
+      "group": "textbook",
+      "title": "阿特伍德机",
+      "blurb": "两只砝码挂在一个滑轮上，质量差决定加速度。拖动加减砝码，松闩看它跑。",
+      "ratio": "16:9",
+      "figure": "atwood-machine",
+      "video": false
+    },
+    {
+      "id": "rcd-breaker",
+      "series": "anatomy",
+      "group": "life",
+      "title": "漏电保护器",
+      "blurb": "火线和零线的电流一旦不相等，线圈立刻推动脱扣，断电。",
+      "ratio": "16:9",
+      "figure": "rcd-breaker",
+      "video": false
+    },
+    {
+      "id": "pressure-cooker",
+      "series": "anatomy",
+      "group": "life",
+      "title": "电压力锅",
+      "blurb": "水为什么能热过 100°C 还不开锅？加热、密封增压、浮子阀锁盖、限压阀稳压，四步讲清。",
+      "ratio": "16:9",
+      "figure": "pressure-cooker",
+      "video": false
+    },
+    {
+      "id": "seatbelt-retractor",
+      "series": "anatomy",
+      "group": "life",
+      "title": "安全带卷收器",
+      "blurb": "慢慢拉能拉出来，猛一拽或急刹车，棘爪立刻咬住棘轮。",
+      "ratio": "16:9",
+      "figure": "seatbelt-retractor",
+      "video": false
+    },
+    {
+      "id": "vacuum-circuit-breaker",
+      "series": "anatomy",
+      "group": "life",
+      "title": "三相真空断路器",
+      "blurb": "三相并排，每相一只真空灭弧室。触头拉开后拉出金属蒸气电弧，电流过零时熄灭，真空间隙恢复绝缘。",
+      "ratio": "16:9",
+      "figure": "vacuum-circuit-breaker",
+      "video": false
+    },
+    {
+      "id": "building-water-supply",
+      "series": "anatomy",
+      "group": "life",
+      "title": "楼宇供水",
+      "blurb": "从市政管网、水箱、加压泵到你家水龙头，每层楼的水压从哪来。",
+      "ratio": "16:9",
+      "figure": "building-water-supply",
+      "video": false
+    },
+    {
+      "id": "dan-zhai-paper",
+      "series": "anatomy",
+      "group": "life",
+      "title": "丹寨石桥古法造纸",
+      "blurb": "构树皮经沤煮、脚碓打浆、竹帘抄纸、压榨晒纸四步成纸；帘子压得越深，纸越厚。",
+      "ratio": "16:9",
+      "figure": "dan-zhai-paper",
+      "video": false
+    },
+    {
+      "id": "zipper-slider",
+      "series": "anatomy",
+      "group": "life",
+      "title": "拉链头",
+      "blurb": "一个楔形拉头，把两排链牙咬合又分开。",
+      "ratio": "16:9",
+      "figure": "zipper-slider",
+      "video": false
+    },
+    {
+      "id": "fast-dawodang",
+      "series": "opuscar",
+      "title": "《坑》中国天眼 FAST",
+      "blurb": "中国天眼 FAST 为什么偏偏选在贵州平塘大窝凼这个坑里？天然的喀斯特洼地像一口现成的锅，雨水渗得走，四周的山把无线电干扰挡在外面。",
+      "duration": 65,
+      "ratio": "9:16"
+    },
+    {
+      "id": "huajiang-bridge",
+      "series": "opuscar",
+      "title": "花江峡谷大桥",
+      "blurb": "贵州花江峡谷大桥，主跨 1420 米，桥面离江面 625 米。两岸之间两个多小时的盘山路，过桥只要两分钟。",
+      "duration": 65,
+      "ratio": "16:9"
+    },
+    {
+      "id": "hush-noob-frenzy",
+      "series": "opuscar",
+      "title": "瓦罗兰特 Hush：新手五秒一关",
+      "blurb": "",
+      "duration": 60,
+      "ratio": "16:9"
+    },
+    {
+      "id": "baihetan",
+      "series": "opuscar",
+      "title": "白鹤滩",
+      "blurb": "",
+      "ratio": "9:16",
+      "status": "soon"
+    },
+    {
+      "id": "dianfu",
+      "series": "opuscar",
+      "title": "碘伏",
+      "blurb": "",
+      "ratio": "9:16",
+      "status": "soon"
+    },
+    {
+      "id": "dingfengbo",
+      "series": "anidoodle",
+      "title": "定风波",
+      "blurb": "莫听穿林打叶声。苏轼的词意，用水墨画出来。",
+      "duration": 20,
+      "ratio": "9:16"
+    },
+    {
+      "id": "whale",
+      "series": "anidoodle",
+      "title": "鲸",
+      "blurb": "刮画风：黑底上一刀一刀刮出一头鲸。",
+      "duration": 20,
+      "ratio": "9:16"
+    },
+    {
+      "id": "star-cc",
+      "series": "anidoodle",
+      "pair": "拾星",
+      "maker": "Claude Code",
+      "title": "拾星（Claude Code 版）",
+      "blurb": "同一段提示词交给 Claude Code 做出来的版本。",
+      "duration": 30,
+      "ratio": "9:16"
+    },
+    {
+      "id": "star-grok",
+      "series": "anidoodle",
+      "pair": "拾星",
+      "maker": "Grok Build",
+      "title": "拾星（Grok Build 版）",
+      "blurb": "同一段提示词交给 Grok Build 做出来的版本。",
+      "duration": 30,
+      "ratio": "9:16"
+    }
+  ]
+}
