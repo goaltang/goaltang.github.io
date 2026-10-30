@@ -31,13 +31,21 @@
     else target.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
   }
 
-  // 顶栏：往下滚时收起，往上滚时出来
+  // 顶栏：往下滚时收起，往上滚时出来；过了首屏给顶栏一块实底，
+  // 米白的拆解卷上字标和「菜单」也看得清（窄屏 CSS 才用这块底色）
   var lastY = window.scrollY;
+  var heroBox = document.querySelector(".hero");
+  function syncTopBar() {
+    root.classList.toggle("is-past-hero", !heroBox || window.scrollY > heroBox.offsetHeight - 72);
+  }
+  syncTopBar();
   window.addEventListener("scroll", function () {
     var y = window.scrollY;
     root.classList.toggle("is-scrolled-down", y > lastY && y > 240);
+    syncTopBar();
     lastY = y;
   }, { passive: true });
+  window.addEventListener("resize", syncTopBar);
 
   /* ---------- 手机菜单 ---------- */
 

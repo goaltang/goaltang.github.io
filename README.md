@@ -10,6 +10,8 @@ personal-blog/
 ├── .github/workflows/deploy.yml  手动发布 GitHub Pages
 ├── data/ai-journey.json      AI 使用轨迹的节点与工具
 ├── index.html                首页模板（构建时刷新轨迹与文章目录）
+├── work.html                 作品页外壳（按 ?id= 读 works.json）
+├── work/                     build.py 生成的作品静态页，不提交（给爬虫和分享卡片看）
 ├── build.py                  本地预览与公开构建
 ├── requirements.txt          构建依赖
 ├── assets/                   首页素材
@@ -31,6 +33,25 @@ personal-blog/
 注意：如果 GitHub 仓库是公开的，保存到仓库里的草稿正文和图片仍可被人从仓库查看；`公开此文章` 只控制网站页面，不提供私密存储。敏感草稿不要保存到公开仓库。
 
 首次使用前，必须在仓库 Settings → Pages 将 **Build and deployment → Source** 改为 **GitHub Actions**，然后才连接 CMS、上传内容。若仍用 `main` 分支直接发布，后台保存的草稿文件也可能被 GitHub Pages 当作静态文件暴露。当前本地修改尚未推送或发布；切换发布方式前，公开网站不会使用这些配置。
+
+## 视频与预览片
+
+仓库里不放 mp4：
+
+- `films/<id>.mp4`：≤720p 的预览片，点开卡片时带声音播；`films/reel.mp4` 是首屏混剪。
+- `films/<id>-loop.mp4`：3.5 秒、短边 ≤480、无音轨的短循环（约 100–300 KB），首屏胶片墙和悬停/点按预览只用它，不再往首屏塞整支预览片。
+- 原画质完整版放在 Release「films」，只给「下载完整版」按钮。
+
+预览片和短循环都由 `scripts/make-previews.sh` 压制，上传到 Release「web」，部署时由 workflow 下载进 `_site/films/`；缺任何一支都会让构建失败。
+
+```bash
+scripts/make-previews.sh            # 预览片 + 短循环 + 混剪 + 完整版
+scripts/make-previews.sh --loops    # 只重做短循环
+scripts/make-previews.sh --local    # 直接写进 films/，本地预览用
+gh release upload web out/web/*.mp4 --clobber --repo goaltang/goaltang.github.io
+```
+
+`build.py` 还会给每部有封面的作品生成 `work/<id>.html`：标题、简介、`og:image` 都是写死在 HTML 里的绝对地址，分享到微信、X 时有图和正确标题；进去以后还能点到原来那个带播放器的 `work.html?id=<id>`。
 
 ## 本地预览
 

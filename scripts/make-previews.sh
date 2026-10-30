@@ -2,13 +2,15 @@
 # 从本机原片做两样东西，仓库里不放任何 mp4：
 #   out/web/<id>.mp4   预览片：H.264 + faststart，短边 ≤720，目标约 10MB → 上传到 Release「web」，部署时下载进站点 films/
 #   out/web/reel.mp4   首屏混剪：每支截 2.4 秒，静音，1280×720 → 同上
+#   out/web/<id>-loop.mp4 短循环：3.5 秒、短边 ≤480、无音轨，约 300KB，给首屏胶片墙和悬停/点按预览用 → 同上
 #   out/full/<id>.mp4  原画质完整版（原片改名，不重压）→ 上传到 Release「films」，给「下载完整版」按钮用
 #
 # 用法：
-#   scripts/make-previews.sh                  做全部预览片、混剪和完整版
-#   scripts/make-previews.sh whale star-cc    只做这几个 id 的预览片和完整版
+#   scripts/make-previews.sh                  做全部预览片、短循环、混剪和完整版
+#   scripts/make-previews.sh whale star-cc    只做这几个 id 的预览片、短循环和完整版
 #   scripts/make-previews.sh --reel           只重做首屏混剪
-#   scripts/make-previews.sh --local [id…]    只做预览片和混剪，直接放进站点 films/（被 .gitignore），本地预览用
+#   scripts/make-previews.sh --loops          只重做短循环（从 films/ 或 out/web/ 已有的预览片切）
+#   scripts/make-previews.sh --local [id…]    只做预览片、短循环和混剪，直接放进站点 films/（被 .gitignore），本地预览用
 #
 # 环境变量：SRC_ROOT（原片根目录，默认 /mnt/d）、TARGET_MB（预览片目标大小，默认 10）
 # 预览片已存在且比原片新时跳过；ffmpeg 失败时继续做下一支，最后以 1 退出。
@@ -24,13 +26,15 @@ TARGET_MB=${TARGET_MB:-10}
 WEB=out/web
 FULL=out/full
 only_reel=0
+only_loops=0
 local_mode=0
 ids=()
 for arg in "$@"; do
   case $arg in
     --reel) only_reel=1 ;;
+    --loops) only_loops=1 ;;
     --local) local_mode=1 ;;
-    -h|--help) sed -n '2,20p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,24p' "$0"; exit 0 ;;
     *) ids+=("$arg") ;;
   esac
 done
@@ -39,12 +43,13 @@ mkdir -p "$WEB"
 [ -n "$FULL" ] && mkdir -p "$FULL"
 
 fail=0
-declare -A SRC START
+declare -A SRC START LOOP
 order=()
-while IFS=$'\t' read -r id path start; do
+while IFS=$'\t' read -r id path start loop; do
   [[ -z "$id" || "$id" == \#* ]] && continue
   SRC[$id]="$SRC_ROOT/$path"
   START[$id]=${start:-}
+  LOOP[$id]=${loop:-}
   order+=("$id")
 done < scripts/sources.tsv
 
@@ -70,6 +75,30 @@ webcut() {   # webcut <id>
     mv "$out.part" "$out"; echo "  $id  $(du -h "$out" | cut -f1)  (上限 ${kbps}k)"
   else
     rm -f "$out.part"; echo "✗ $id: ffmpeg 压不出预览片（$src）" >&2; fail=1
+  fi
+}
+
+# 短循环：3.5 秒、短边 ≤480、无音轨、faststart，约 300KB。
+# 首屏胶片墙、悬停/点按预览都用它，别再往首屏塞整支预览片。
+# 源片优先用刚压好的预览片（同一时间轴，帧和封面一致），没有就退回原片。
+loopcut() {  # loopcut <id>
+  local id=$1 src=$WEB/$1.mp4 out=$WEB/$1-loop.mp4 start
+  [ -f "$src" ] || src=${SRC[$1]}
+  [ -f "$src" ] || { echo "✗ $id: 找不到预览片 $WEB/$1.mp4，也没找到原片" >&2; fail=1; return; }
+  if [ -f "$out" ] && [ ! "$src" -nt "$out" ]; then echo "  $id 短循环已是最新，跳过"; return; fi
+  start=${LOOP[$id]:-}
+  if [ -z "$start" ]; then
+    # 默认从 2 秒（或 12% 处）开始，避开片头的黑场/淡入
+    start=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$src" |
+      awk '{ s = $1 * 0.12; if (s > 2) s = 2; if (s < 0.4) s = 0.4; if ($1 < 4) s = 0; printf "%.2f", s }')
+  fi
+  if ffmpeg -v error -y -ss "$start" -t 3.5 -i "$src" -map 0:v:0 \
+      -vf "scale='if(gte(iw,ih),-2,min(480,iw))':'if(gte(iw,ih),min(480,ih),-2)':flags=lanczos,format=yuv420p" \
+      -an -c:v libx264 -profile:v high -preset slow -b:v 700k -maxrate 900k -bufsize 1400k \
+      -movflags +faststart -tag:v avc1 -f mp4 "$out.part"; then
+    mv "$out.part" "$out"; echo "  $id  $(du -h "$out" | cut -f1)  短循环 ${start}s 起"
+  else
+    rm -f "$out.part"; echo "✗ $id: ffmpeg 压不出短循环（$src）" >&2; fail=1
   fi
 }
 
@@ -108,9 +137,14 @@ reel() {
   fi
 }
 
-if [ "$only_reel" = 0 ]; then
+if [ "$only_loops" = 1 ]; then
+  echo "短循环 → $WEB/"
+  for id in "${ids[@]}"; do loopcut "$id"; done
+elif [ "$only_reel" = 0 ]; then
   echo "预览片 → $WEB/"
   for id in "${ids[@]}"; do webcut "$id"; done
+  echo "短循环 → $WEB/"
+  for id in "${ids[@]}"; do loopcut "$id"; done
   if [ -n "$FULL" ]; then
     echo "完整版 → $FULL/"
     for id in "${ids[@]}"; do fullcopy "$id"; done

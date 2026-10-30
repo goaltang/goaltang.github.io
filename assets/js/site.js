@@ -44,11 +44,11 @@
           el("span", { class: "tag", text: "F" + S.pad(r * perRow + k + 1, 3) + "  " + S.ratioLabel(shownWork) })
         ]);
         if (live) {
+          // 只用 3.5 秒的短循环，整支预览片留在点开之后
           var v = el("video", { muted: true, loop: true, playsinline: true, preload: "none" });
           v.muted = true;
           v.addEventListener("error", function () { v.remove(); });
-          v.dataset.src = S.film(live);
-          v.dataset.start = String(3 + r * 5);
+          v.dataset.src = S.loopFilm(live);
           frame.appendChild(v);
           videos.push(v);
         }
@@ -66,10 +66,7 @@
     new IntersectionObserver(function (entries) {
       videos.forEach(function (v) {
         if (entries[0].isIntersecting) {
-          if (!v.getAttribute("src")) {
-            v.src = v.dataset.src;
-            v.addEventListener("loadedmetadata", function () { v.currentTime = Math.min(+v.dataset.start, (v.duration || 10) - 1); }, { once: true });
-          }
+          if (!v.getAttribute("src")) v.src = v.dataset.src;
           var p = v.play(); if (p && p.catch) p.catch(function () {});
         } else v.pause();
       });
@@ -230,17 +227,16 @@
       }, [
         el("span", { class: "media-clip" }, [soon ? null : el("img", { src: S.cover(w), alt: "", loading: "lazy", decoding: "async" })]),
         soon ? el("span", { class: "badge-soon" }, [el("span", { text: "待出片" })]) : null,
-        el("span", { class: "tag tl", "aria-hidden": "true", text: "9:16" }),
-        w.duration ? el("span", { class: "tag tr", "aria-hidden": "true", text: S.duration(w.duration) }) : null,
         soon ? null : el("span", { class: "tag br live", "aria-hidden": "true", text: "● 预览" }),
         S.marks()
       ]);
       if (!soon) media.addEventListener("click", function () { S.stopPreview(media); openViewer(w); });
-      return el("div", { class: "strip-item", "data-film": soon ? "" : S.film(w) }, [
+      return el("div", { class: "strip-item", "data-loop": soon ? "" : S.loopFilm(w), "data-film": soon ? "" : S.film(w) }, [
         media,
         el("div", { class: "strip-cap" }, [
           el("h4", { text: w.title }),
-          soon ? el("p", { text: "还在做，做好就放上来。" }) : (w.blurb ? el("p", { text: w.blurb.length > 40 ? w.blurb.slice(0, 39) + "…" : w.blurb }) : null)
+          soon ? el("p", { text: "还在做，做好就放上来。" })
+            : el("p", { text: (w.duration ? S.duration(w.duration) + " · " : "") + (w.blurb ? (w.blurb.length > 40 ? w.blurb.slice(0, 39) + "…" : w.blurb) : "") })
         ])
       ]);
     }));
@@ -269,7 +265,7 @@
     function playCurrent() {
       items.forEach(function (it) {
         var media = it.querySelector(".media");
-        if (it === current && visible && it.dataset.film) S.startPreview(media, it.dataset.film);
+        if (it === current && visible && it.dataset.loop) S.startPreview(media, it.dataset.loop, it.dataset.film);
         else S.stopPreview(media);
       });
     }
@@ -310,8 +306,6 @@
       video.muted = true;
       var media = el("div", { class: "media t" }, [
         el("span", { class: "media-clip" }, [video]),
-        el("span", { class: "tag tl", "aria-hidden": "true", text: "9:16" }),
-        el("span", { class: "tag tr", "aria-hidden": "true", text: S.duration(w.duration) }),
         el("span", { class: "tag bl", "aria-hidden": "true", text: w.maker }),
         S.marks()
       ]);

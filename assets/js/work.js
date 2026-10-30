@@ -16,6 +16,11 @@
     M.ready();
   });
 
+  function setMeta(selector, attribute, value) {
+    var node = document.querySelector(selector);
+    if (node) node.setAttribute(attribute, value);
+  }
+
   function missing() {
     document.title = "找不到这部作品 · TaopleOne";
     main.appendChild(el("h1", { class: "work-title", text: "找不到这部作品" }));
@@ -30,6 +35,23 @@
     var workNo = S.pad(siblings.indexOf(work) + 1) + "/" + S.pad(siblings.length);
     document.title = work.title + " · TaopleOne";
     if (work.blurb) document.querySelector('meta[name="description"]').setAttribute("content", work.blurb);
+    // 分享卡片和 canonical 指向 build.py 生成的静态页 work/<id>.html（爬虫不用跑 JS 就能拿到这些值）
+    var base = (data.site && data.site.url) || "";
+    if (base) {
+      var canonical = base + "work/" + work.id + ".html";
+      var cover = base + "covers/" + work.id + ".jpg";
+      var title = work.title + " · TaopleOne";
+      setMeta('link[rel="canonical"]', "href", canonical);
+      setMeta('meta[property="og:url"]', "content", canonical);
+      setMeta('meta[property="og:title"]', "content", title);
+      setMeta('meta[name="twitter:title"]', "content", title);
+      setMeta('meta[property="og:image"]', "content", cover);
+      setMeta('meta[name="twitter:image"]', "content", cover);
+      if (work.blurb) {
+        setMeta('meta[property="og:description"]', "content", work.blurb);
+        setMeta('meta[name="twitter:description"]', "content", work.blurb);
+      }
+    }
 
     main.appendChild(el("a", { class: "work-back magnetic", href: "./#" + sec.id }, [el("b", { text: "卷 " + secNo }), "回到" + sec.name + "（" + sec.brand + "）"]));
     main.appendChild(el("h1", { class: "work-title", text: work.title }));

@@ -2,6 +2,7 @@
 """构建站点：作品集首页是手写的静态文件，这里只把文章编译成页面，并在公开构建时把整站拷进独立目录。"""
 import argparse
 import html
+import json
 import pathlib
 import re
 import shutil
@@ -10,6 +11,8 @@ import yaml
 
 ROOT = pathlib.Path(__file__).resolve().parent
 SITE = "TaopleOne"
+# 分享卡片和 canonical 用的绝对地址；works.json 的 site.url 优先
+DEFAULT_SITE_URL = "https://goaltang.github.io/"
 # 公开构建拷进站点的文件；视频不在仓库里，部署时由 workflow 从 Release「web」下载到 films/
 SITE_FILES = ["index.html", "work.html", "data/works.json"]
 SITE_DIRS = ["assets", "covers", "figures"]
@@ -168,6 +171,170 @@ POST_TEMPLATE = """<!doctype html>
 </html>
 """
 
+# ---------------- 作品页（静态版） ----------------
+# 首页和作品页都靠 JS 读 works.json，爬虫和分享卡片等不到 JS。
+# 这里给每部有封面的作品生成 work/<id>.html：标题、简介、og:image 都是真值，
+# 进去以后仍然可以跳到原来那个带播放器的 work.html?id=<id>。
+
+WORK_TEMPLATE = """<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{title} · {site}</title>
+<meta name="description" content="{description}">
+<meta name="theme-color" content="#050505">
+<link rel="canonical" href="{url}">
+<meta property="og:type" content="video.other">
+<meta property="og:site_name" content="{site}">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="{title}">
+<meta property="og:description" content="{description}">
+<meta property="og:url" content="{url}">
+<meta property="og:image" content="{image}">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="720">
+<meta property="og:image:alt" content="{image_alt}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{title}">
+<meta name="twitter:description" content="{description}">
+<meta name="twitter:image" content="{image}">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23050505'/><circle cx='16' cy='16' r='7' fill='%23ff5a00'/><path d='M3 3h5M3 3v5M29 3h-5M29 3v5M3 29h5M3 29v-5M29 29h-5M29 29v-5' stroke='%23ece8df' stroke-width='2' fill='none'/></svg>">
+<link rel="preload" href="../assets/fonts/archivo-wdth.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/css/site.css">
+</head>
+<body class="work-page">
+<header class="top">
+  <a class="top-home" href="../" aria-label="TaopleOne 首页"><i class="rec" aria-hidden="true"></i>{site}</a>
+  <nav class="top-nav" aria-label="分区"><a href="../#{section_id}"><small>{section_no}</small>{section_name}</a></nav>
+</header>
+
+<main id="work" class="work work-static">
+  <a class="work-back" href="../#{section_id}"><b>卷 {section_no}</b> 回到{section_name}（{section_brand}）</a>
+  <h1 class="work-title">{title}</h1>
+  <div class="static-stage"><img src="../covers/{cover}.jpg" alt="{image_alt}" width="1280" height="720"></div>
+  <div class="work-info">
+    <dl class="slate">
+      <div><dt>卷</dt><dd>{section_no}  {section_name}</dd></div>
+      <div><dt>编号</dt><dd>{work_no}</dd></div>
+      <div><dt>时长</dt><dd>{duration}</dd></div>
+      <div><dt>画幅</dt><dd>{ratio}</dd></div>
+{extra_cells}    </dl>
+    <div class="work-text">
+      <p class="work-blurb">{blurb}</p>
+      <div class="work-actions">
+{actions}
+      </div>
+      <p class="static-note">这一页是给搜索引擎和分享卡片看的静态版；<a href="../work.html?id={id_url}{play_hash}">打开带播放器、能动手玩的作品页</a>。</p>
+    </div>
+  </div>
+</main>
+
+<footer class="foot"><small class="foot-copy">© 2026 {site}。作品由 AI 参与制作。</small></footer>
+</body>
+</html>
+"""
+
+RATIO_LABEL = {"16:9": "16:9 横屏", "9:16": "9:16 竖屏"}
+
+
+def work_duration(seconds) -> str:
+    if not seconds:
+        return "—"
+    seconds = int(round(float(seconds)))
+    return "%02d:%02d" % (seconds // 60, seconds % 60)
+
+
+def work_pages(root: pathlib.Path, output: pathlib.Path) -> list[str]:
+    """按 data/works.json 生成 work/<id>.html；没有封面的（待出片）跳过。"""
+    data_path = root / "data" / "works.json"
+    if not data_path.is_file():
+        return []
+    data = json.loads(data_path.read_text(encoding="utf-8"))
+    base = str((data.get("site") or {}).get("url") or DEFAULT_SITE_URL)
+    if not base.endswith("/"):
+        base += "/"
+    full_base = str((data.get("site") or {}).get("fullBase") or "")
+    sections = data.get("sections") or []
+    works = data.get("works") or []
+
+    written = []
+    for index, section in enumerate(sections):
+        section["_no"] = "%02d" % (index + 1)
+
+    for work in works:
+        wid = work.get("id")
+        if not wid or not (root / "covers" / (wid + ".jpg")).is_file():
+            continue
+        section = next((s for s in sections if s.get("id") == work.get("series")), None)
+        if section is None:
+            continue
+        siblings = [w for w in works
+                    if w.get("series") == section["id"] or section["id"] in (w.get("also") or [])]
+        number = "%02d/%02d" % (siblings.index(work) + 1, len(siblings))
+        tall = work.get("ratio") == "9:16"
+        title = str(work.get("title") or wid)
+        blurb = str(work.get("blurb") or "")
+        if work.get("status") == "soon" and not blurb:
+            blurb = "还在做，做好就放上来。"
+        image_alt = "《%s》的画面" % title
+        url = base + "work/" + wid + ".html"
+        image = base + "covers/" + wid + ".jpg"
+
+        cells = []
+        if work.get("level"):
+            cells.append(("适合", str(work["level"])))
+        if work.get("group"):
+            cells.append(("系列", "课本系列" if work["group"] == "textbook" else "生活系列"))
+        if work.get("maker"):
+            cells.append(("制作", str(work["maker"])))
+        extra_cells = "".join(
+            '      <div><dt>%s</dt><dd>%s</dd></div>\n' % (html.escape(k), html.escape(v))
+            for k, v in cells)
+
+        actions = []
+        if work.get("video", True) and work.get("status") != "soon":
+            actions.append('        <a class="btn primary" href="../work.html?id=%s">打开作品页</a>' % html.escape(wid, quote=True))
+            if full_base:
+                actions.append('        <a class="btn" href="%s%s.mp4" download>下载完整版</a>'
+                               % (html.escape(full_base, quote=True), html.escape(wid, quote=True)))
+        if work.get("figure"):
+            actions.append('        <a class="btn" href="../figures/%s.html">全屏交互图</a>'
+                           % html.escape(str(work["figure"]), quote=True))
+        if work.get("bilibili"):
+            actions.append('        <a class="btn" href="%s" rel="noopener">在 B 站看</a>'
+                           % html.escape(str(work["bilibili"]), quote=True))
+        if not actions:
+            actions.append('        <a class="btn primary" href="../work.html?id=%s">打开作品页</a>' % html.escape(wid, quote=True))
+
+        page = WORK_TEMPLATE.format(
+            site=SITE,
+            title=html.escape(title),
+            description=html.escape(blurb),
+            url=html.escape(url, quote=True),
+            image=html.escape(image, quote=True),
+            image_alt=html.escape(image_alt, quote=True),
+            section_id=html.escape(section["id"], quote=True),
+            section_no=section["_no"],
+            section_name=html.escape(str(section.get("name") or "")),
+            section_brand=html.escape(str(section.get("brand") or "")),
+            cover=html.escape(wid, quote=True),
+            work_no=html.escape(number),
+            duration=html.escape(work_duration(work.get("duration"))),
+            ratio=html.escape(RATIO_LABEL.get(work.get("ratio"), "16:9 横屏")),
+            blurb=html.escape(blurb) or "&nbsp;",
+            extra_cells=extra_cells,
+            actions="\n".join(actions),
+            id_url=html.escape(wid, quote=True),
+            play_hash="#play" if work.get("figure") and work.get("video", True) else "",
+        )
+        destination = output / "work" / (wid + ".html")
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_text(page, encoding="utf-8")
+        written.append(wid)
+    return written
+
+
 def copy_post_images(markdown: str, root: pathlib.Path, output: pathlib.Path):
     image_root = (root / "posts" / "images").resolve()
     for url in re.findall(r"\]\(([^)\s]+)\)", markdown):
@@ -237,9 +404,13 @@ def build(root: pathlib.Path = ROOT, output: pathlib.Path | None = None, publish
         for name in SITE_DIRS:
             shutil.copytree(root / name, output / name)
 
-    print("构建完成：%d 篇文章" % len(posts))
+    written_works = work_pages(root, output)
+
+    print("构建完成：%d 篇文章、%d 张作品静态页" % (len(posts), len(written_works)))
     for md, meta, _ in posts:
         print("  - posts/%s.html  %s" % (md.stem, meta["title"]))
+    for wid in written_works:
+        print("  - work/%s.html" % wid)
 
 
 def main():

@@ -1,5 +1,6 @@
 {
   "site": {
+    "url": "https://goaltang.github.io/",
     "films": "films/",
     "fullBase": "https://github.com/goaltang/goaltang.github.io/releases/download/films/",
     "reel": "films/reel.mp4"

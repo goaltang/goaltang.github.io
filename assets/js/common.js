@@ -71,6 +71,8 @@
   function hasVideo(work) { return work.video !== false && !isSoon(work); }
   function cover(work) { return "covers/" + work.id + ".jpg"; }
   function film(work) { return state.data.site.films + work.id + ".mp4"; }
+  // 首屏胶片墙和悬停/点按预览只用 3.5 秒的短循环（约 300KB），不拉整支预览片
+  function loopFilm(work) { return state.data.site.films + work.id + "-loop.mp4"; }
   function fullFilm(work) { return state.data.site.fullBase + work.id + ".mp4"; }
   function page(work, play) { return "work.html?id=" + encodeURIComponent(work.id) + (play ? "#play" : ""); }
   function ratioLabel(work) { return isTall(work) ? "9:16" : "16:9"; }
@@ -87,36 +89,52 @@
     if (tag) tag.textContent = text;
   }
 
-  function startPreview(media, src) {
+  // 播起来了才露出画面（CSS 里 is-on 之前 video 是裁掉的）
+  function showPreview(media, video) {
+    video.classList.add("is-on");
+    media.classList.add("is-previewing");
+  }
+
+  function startPreview(media, src, fallback) {
     if (reduced.matches || !src) return;
     var clip = media.querySelector(".media-clip");
     var video = clip.querySelector("video");
     if (!video) {
-      video = el("video", { muted: true, playsinline: true, preload: "auto", "aria-hidden": "true" });
+      video = el("video", { muted: true, playsinline: true, preload: "none", "aria-hidden": "true" });
       video.muted = true;
       video.playsInline = true;
       video.addEventListener("timeupdate", function () {
-        if (video.currentTime >= PREVIEW_SECONDS) video.currentTime = 0;
+        // 退回整支预览片时才需要自己掐前 3 秒；短循环本来就只有 3.5 秒，让它自己接上
+        if (!video.loop && video.currentTime >= PREVIEW_SECONDS) video.currentTime = 0;
       });
-      // 播不了就当没预览过，别让第一下点击白吞掉
+      // 短循环没上传/坏了就退回整支预览片；一样失败就当没有预览，别让第一下点击白吞掉
       video.addEventListener("error", function () {
+        if (media._fallbackSrc && video.getAttribute("src") !== media._fallbackSrc) {
+          var next = media._fallbackSrc;
+          media._fallbackSrc = null;
+          video.loop = false;
+          video.src = next;
+          var retry = video.play();
+          if (retry && retry.then) {
+            retry.then(function () { if (media._previewOn) showPreview(media, video); }).catch(function () {});
+          }
+          return;
+        }
         media._previewOn = false;
         video.remove();
         media.classList.remove("is-previewing");
         liveTag(media, LIVE_TAG);
       });
-      video.src = src;
       clip.appendChild(video);
     }
     media._previewOn = true;
+    media._fallbackSrc = fallback || null;
+    video.loop = /-loop\.mp4$/.test(src);
+    if (video.getAttribute("src") !== src) video.src = src;
     clearTimeout(media._previewTimer);
     var p = video.play();
     if (p && p.then) {
-      p.then(function () {
-        if (!media._previewOn) return;
-        video.classList.add("is-on");
-        media.classList.add("is-previewing");
-      }).catch(function () {});
+      p.then(function () { if (media._previewOn) showPreview(media, video); }).catch(function () {});
     }
   }
 
@@ -140,7 +158,7 @@
 
   // 触屏：第一下只预览（拦在卡片自己的「打开」之前），第二下才放行。
   // 监听必须先于卡片的 click 注册，同元素上按注册顺序触发。
-  function tapPreview(media, src) {
+  function tapPreview(media, src, fallback) {
     media.addEventListener("click", function (e) {
       if (!touchPointer.matches || reduced.matches) return;
       if (media._previewOn) return;
@@ -148,32 +166,32 @@
       e.stopImmediatePropagation();
       if (armedMedia && armedMedia !== media) stopPreview(armedMedia);
       armedMedia = media;
-      startPreview(media, src);
+      startPreview(media, src, fallback);
       if (media._previewOn) liveTag(media, ARMED_TAG);
     });
   }
 
-  function hoverPreview(media, src) {
-    media.addEventListener("pointerenter", function () { if (finePointer.matches) startPreview(media, src); });
+  function hoverPreview(media, src, fallback) {
+    media.addEventListener("pointerenter", function () { if (finePointer.matches) startPreview(media, src, fallback); });
     media.addEventListener("pointerleave", function () { if (finePointer.matches) stopPreview(media); });
-    media.addEventListener("focus", function () { if (finePointer.matches) startPreview(media, src); });
+    media.addEventListener("focus", function () { if (finePointer.matches) startPreview(media, src, fallback); });
     media.addEventListener("blur", function () { if (finePointer.matches) stopPreview(media); });
   }
 
-  function attachPreview(media, src) {
-    tapPreview(media, src);
-    hoverPreview(media, src);
+  // src：短循环；fallback：短循环缺失时退回整支预览片
+  function attachPreview(media, src, fallback) {
+    tapPreview(media, src, fallback);
+    hoverPreview(media, src, fallback);
   }
 
   /* ---------- 卡片 ---------- */
 
-  // 画面四角：左上比例，右上时长，左下编号，右下悬停时亮「预览」。
-  function mediaTags(work, no) {
+  // 画面角上只留编号和「预览」灯：画幅、时长都挪到卡片下方，
+  // 封面自带的标题和字幕在画面四角都有，标签压上去就读不出来了。
+  function mediaTags(work, no, soon) {
     return [
-      el("span", { class: "tag tl", "aria-hidden": "true", text: ratioLabel(work) }),
-      work.duration ? el("span", { class: "tag tr", "aria-hidden": "true", text: duration(work.duration) }) : null,
       no ? el("span", { class: "tag bl", "aria-hidden": "true", text: no }) : null,
-      el("span", { class: "tag br live", "aria-hidden": "true", text: "● 预览" })
+      soon ? null : el("span", { class: "tag br live", "aria-hidden": "true", text: "● 预览" })
     ];
   }
 
@@ -197,14 +215,15 @@
         soon ? null : el("img", { src: cover(work), alt: "", loading: opts.eager ? "eager" : "lazy", decoding: "async" })
       ]),
       soon ? el("span", { class: "badge-soon" }, [el("span", { text: "待出片" })]) : null
-    ].concat(soon ? [el("span", { class: "tag tl", "aria-hidden": "true", text: ratioLabel(work) })] : mediaTags(work, opts.no), [marks()]));
+    ].concat(mediaTags(work, opts.no, soon), [marks()]));
     // 预览的监听要先挂，触屏第一下才能在「打开」之前被拦下
-    if (video) attachPreview(media, film(work));
+    if (video) attachPreview(media, loopFilm(work), film(work));
     if (playable) {
       media.addEventListener("click", function () { stopPreview(media); opts.onPlay(work); });
     }
 
-    var foot = [];
+    var foot = [el("span", { class: "level ratio", text: ratioLabel(work) + (isTall(work) ? " 竖屏" : " 横屏") })];
+    if (work.duration) foot.push(el("span", { class: "level dur", text: duration(work.duration) }));
     if (work.level) foot.push(el("span", { class: "level", "data-level": work.level, text: "适合" + work.level }));
     if (opts.groupTag && work.group) foot.push(el("span", { class: "level", text: work.group === "textbook" ? "课本系列" : "生活系列" }));
     if (work.figure && opts.anatomy) {
@@ -246,7 +265,7 @@
     el: el, marks: marks, icon: icon, load: load, state: state, card: card,
     pad: pad, duration: duration, durationWords: durationWords, timecode: timecode,
     isTall: isTall, isSoon: isSoon, hasVideo: hasVideo, inSection: inSection, ratioLabel: ratioLabel,
-    cover: cover, film: film, fullFilm: fullFilm, page: page,
+    cover: cover, film: film, loopFilm: loopFilm, fullFilm: fullFilm, page: page,
     startPreview: startPreview, stopPreview: stopPreview, attachPreview: attachPreview,
     reduced: reduced, finePointer: finePointer, touch: touchPointer
   };

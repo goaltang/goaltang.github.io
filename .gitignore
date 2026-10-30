@@ -2,6 +2,7 @@
 .DS_Store
 Thumbs.db
 posts/*.html
+work/
 __pycache__/
 
 # 本地预览用的视频（线上从 Release「web」下载）与压制产物，仓库里不放 mp4

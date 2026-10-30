@@ -1,3 +1,4 @@
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -16,7 +17,14 @@ class SiteBuildTest(unittest.TestCase):
         (root / "covers" / "a.jpg").write_bytes(b"jpg")
         (root / "figures" / "a.html").write_text("<p>figure</p>")
         (root / "films" / "a.mp4").write_bytes(b"film")
-        (root / "data" / "works.json").write_text('{"works": []}')
+        (root / "data" / "works.json").write_text(json.dumps({
+            "site": {"url": "https://example.test/", "films": "films/", "fullBase": "https://example.test/films/"},
+            "sections": [{"id": "manimgx", "name": "讲解", "brand": "ManimGX", "ratio": "16:9"}],
+            "works": [
+                {"id": "a", "series": "manimgx", "title": "A 作品", "blurb": "A 的简介", "duration": 26, "ratio": "16:9"},
+                {"id": "b", "series": "manimgx", "title": "B 没有封面", "blurb": "B 的简介", "duration": 118, "ratio": "16:9"},
+            ],
+        }, ensure_ascii=False), encoding="utf-8")
         (root / "data" / "ai-journey.json").write_text("{}")
         self.homepage = "<title>作品集</title><main id=\"works\"></main>"
         (root / "index.html").write_text(self.homepage, encoding="utf-8")
@@ -59,11 +67,32 @@ class SiteBuildTest(unittest.TestCase):
             self.assertEqual((output / "posts" / "images" / "public.webp").read_bytes(), b"public")
             self.assertEqual((output / "posts" / "images" / "hires.webp").read_bytes(), b"hires")
 
+    def test_work_pages_carry_absolute_social_meta(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = self.make_source(directory)
+            output = Path(directory) / "published"
+            build(root, output, published_only=True)
+
+            page = (output / "work" / "a.html").read_text(encoding="utf-8")
+            self.assertIn("<title>A 作品 · TaopleOne</title>", page)
+            self.assertIn('<meta name="description" content="A 的简介">', page)
+            self.assertIn('<link rel="canonical" href="https://example.test/work/a.html">', page)
+            self.assertIn('<meta property="og:url" content="https://example.test/work/a.html">', page)
+            self.assertIn('<meta property="og:image" content="https://example.test/covers/a.jpg">', page)
+            self.assertIn('<meta property="og:image:width" content="1280">', page)
+            self.assertIn('<meta name="twitter:card" content="summary_large_image">', page)
+            # 原来那条带播放器的链接还得能用
+            self.assertIn('href="../work.html?id=a"', page)
+            self.assertIn('href="https://example.test/films/a.mp4"', page)
+            # 没有封面的作品不出静态页
+            self.assertFalse((output / "work" / "b.html").exists())
+
     def test_local_build_previews_drafts_without_touching_the_homepage(self):
         with tempfile.TemporaryDirectory() as directory:
             root = self.make_source(directory)
             build(root)
             self.assertTrue((root / "posts" / "draft.html").exists())
+            self.assertTrue((root / "work" / "a.html").exists())
             self.assertNotIn("draft.html", (root / "posts" / "index.html").read_text(encoding="utf-8"))
             self.assertEqual((root / "index.html").read_text(encoding="utf-8"), self.homepage)
 

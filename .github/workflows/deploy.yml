@@ -6,7 +6,7 @@ name: Publish TaopleOne
 on:
   push:
     branches: [main]
-    paths: ['index.html', 'work.html', 'assets/**', 'data/works.json', 'covers/**', 'figures/**', '.github/workflows/deploy.yml']
+    paths: ['index.html', 'work.html', 'build.py', 'assets/**', 'data/works.json', 'covers/**', 'figures/**', '.github/workflows/deploy.yml']
   workflow_dispatch:
     inputs:
       payload:
@@ -37,16 +37,20 @@ jobs:
       - run: gh release download web --repo "$GITHUB_REPOSITORY" --pattern '*.mp4' --dir _site/films
         env:
           GH_TOKEN: ${{ github.token }}
-      # works.json 里每一部有视频的作品都要有预览片，否则卡片会打开一个放不出来的播放器
+      # works.json 里每一部有视频的作品都要有预览片（点开播放）和短循环（首屏胶片墙、悬停/点按预览），
+      # 否则卡片会打开一个放不出来的播放器，或者预览一直空着
       - name: check that every listed film is in the site
         run: |
           expected=$(python3 -c "import json; print('\n'.join(w['id'] for w in json.load(open('data/works.json'))['works'] if w.get('video', True) and w.get('status') != 'soon'))")
           [ -n "$expected" ] || { echo "::error::data/works.json lists no work with a video"; exit 1; }
           missing=0
-          for id in $expected reel; do
-            [ -s "_site/films/$id.mp4" ] || { echo "::error::films/$id.mp4 is not in the 'web' release (run scripts/make-previews.sh $id and upload out/web/$id.mp4)"; missing=1; }
+          for id in $expected; do
+            for suffix in .mp4 -loop.mp4; do
+              [ -s "_site/films/$id$suffix" ] || { echo "::error::films/$id$suffix is not in the 'web' release (run scripts/make-previews.sh $id and upload out/web/$id*$suffix)"; missing=1; }
+            done
           done
-          echo "$(echo "$expected" | wc -l) films expected, $(ls _site/films | wc -l) downloaded"
+          [ -s "_site/films/reel.mp4" ] || { echo "::error::films/reel.mp4 is not in the 'web' release (run scripts/make-previews.sh --reel and upload out/web/reel.mp4)"; missing=1; }
+          echo "$(echo "$expected" | wc -l) films expected (each with a -loop.mp4), $(ls _site/films | wc -l) downloaded"
           [ "$missing" = 0 ]
       - uses: actions/upload-pages-artifact@v5
         with:
