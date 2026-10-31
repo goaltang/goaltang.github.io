@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from build import build
+from build import build, work_pages
 
 
 class SiteBuildTest(unittest.TestCase):
@@ -107,6 +107,57 @@ class SiteBuildTest(unittest.TestCase):
             (output / "old.html").write_text("old")
             with self.assertRaises(ValueError):
                 build(root, output, published_only=True)
+
+
+class RealWorksTest(unittest.TestCase):
+    """拿仓库里真正的 data/works.json 来检查首页精选和作品页。"""
+
+    ROOT = Path(__file__).resolve().parent.parent
+
+    def setUp(self):
+        self.data = json.loads((self.ROOT / "data" / "works.json").read_text(encoding="utf-8"))
+        self.manimgx = [w for w in self.data["works"] if w["series"] == "manimgx"]
+
+    def test_home_features_three_or_four_manimgx_episodes(self):
+        picks = [w["id"] for w in self.manimgx if w.get("featured")]
+        self.assertGreaterEqual(len(picks), 3)
+        self.assertLessEqual(len(picks), 4)
+        # 和 ManimGX 独立站首页「先看这三集」一致
+        for wid in ("pythagoras", "projectile", "roadster"):
+            self.assertIn(wid, picks)
+        # 精选只是标记，条目一个都不删
+        self.assertEqual(len(self.manimgx), 8)
+
+    def test_manimgx_section_links_to_the_standalone_site_once(self):
+        sec = next(s for s in self.data["sections"] if s["id"] == "manimgx")
+        self.assertEqual(sec["site"]["url"], "https://goaltang.github.io/manimgx/")
+        self.assertTrue(sec["site"]["more"] and sec["site"]["label"])
+        site_js = (self.ROOT / "assets" / "js" / "site.js").read_text(encoding="utf-8")
+        self.assertIn("w.featured", site_js)
+        self.assertEqual(site_js.count("sec.site.url"), 1)
+
+    def test_every_manimgx_work_page_is_built_with_code_link(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "source"
+            (root / "data").mkdir(parents=True)
+            (root / "covers").mkdir()
+            (root / "data" / "works.json").write_text(json.dumps(self.data, ensure_ascii=False), encoding="utf-8")
+            for w in self.manimgx:
+                (root / "covers" / (w["id"] + ".jpg")).write_bytes(b"jpg")
+            output = Path(directory) / "out"
+            output.mkdir()
+            work_pages(root, output)
+            for w in self.manimgx:
+                page = output / "work" / (w["id"] + ".html")
+                self.assertTrue(page.exists(), w["id"])
+                html_text = page.read_text(encoding="utf-8")
+                self.assertIn('href="../work.html?id=%s"' % w["id"], html_text)
+                self.assertIn("https://goaltang.github.io/manimgx/works.html#%s\">看代码" % w["code"], html_text)
+
+    def test_no_standalone_tao(self):
+        for rel in ("data/works.json", "assets/js/site.js", "index.html"):
+            text = (self.ROOT / rel).read_text(encoding="utf-8")
+            self.assertNotRegex(text, r"(?<![A-Za-z])Tao(?![A-Za-z])", rel)
 
 
 if __name__ == "__main__":

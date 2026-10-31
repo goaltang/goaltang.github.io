@@ -10,10 +10,11 @@
       "id": "manimgx",
       "title": "ManimGX 讲解",
       "ratio": "16:9",
-      "desc": "用 Manim 一步步画出来的知识点，按学科放。卡片右下角标着适合哪个阶段。",
+      "desc": "用 Manim 一步步画出来的知识点。这里先放三集，卡片右下角标着适合哪个阶段。",
       "site": {
         "url": "https://goaltang.github.io/manimgx/",
-        "label": "ManimGX 独立站：看代码和动画对照",
+        "more": "全部作品和每一集的场景代码，都在 ManimGX 独立站。",
+        "label": "去 ManimGX 看全部作品和代码",
         "works": "https://goaltang.github.io/manimgx/works.html#"
       },
       "groupBy": "subject",
@@ -85,6 +86,7 @@
     {
       "id": "pythagoras",
       "series": "manimgx",
+      "featured": true,
       "subject": "math",
       "level": "初中",
       "title": "勾股定理：拼图证明",
@@ -118,6 +120,7 @@
     {
       "id": "projectile",
       "series": "manimgx",
+      "featured": true,
       "subject": "physics",
       "level": "高中",
       "title": "平抛运动",
@@ -129,6 +132,7 @@
     {
       "id": "roadster",
       "series": "manimgx",
+      "featured": true,
       "subject": "physics",
       "level": "初中",
       "title": "倒挂的车为什么不掉",

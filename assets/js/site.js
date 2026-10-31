@@ -80,6 +80,7 @@
   function chapter(sec, works, i) {
     var no = S.pad(i + 1);
     var count = works.filter(function (w) { return !S.isSoon(w); }).length;
+    var picks = works.filter(function (w) { return w.featured; });
     var bandBits = [];
     for (var k = 0; k < 4; k++) bandBits.push(el("span", { text: sec.name }), el("em", { text: sec.brand }));
 
@@ -87,7 +88,7 @@
       el("div", { class: "chapter-meta", "aria-hidden": "true" }, [
         el("b", { text: "卷 " + no }),
         el("span", { text: RATIO[sec.ratio] }),
-        el("span", { text: count + " 部" }),
+        el("span", { text: picks.length ? "精选 " + picks.length + " / " + count + " 部" : count + " 部" }),
         el("i", { class: "grow" }),
         el("span", { text: sec.brand })
       ]),
@@ -96,14 +97,14 @@
         el("p", { class: "chapter-no", "aria-hidden": "true", text: no }),
         el("div", { class: "stack rv-fade" }, [
           el("h2", { id: sec.id + "-h", text: sec.title }),
-          el("p", { text: sec.desc }),
-          sec.site ? el("p", { class: "chapter-site" }, [el("a", { href: sec.site.url, text: sec.site.label })]) : null
+          el("p", { text: sec.desc })
         ])
       ])
     ]);
 
     var opts = { onPlay: openViewer };
-    if (sec.id === "manimgx") groups(node, sec, works, opts);
+    if (sec.id === "manimgx" && picks.length) featured(node, sec, works, picks, opts);
+    else if (sec.id === "manimgx") groups(node, sec, works, opts);
     else if (sec.id === "anatomy") anatomy(node, works);
     else if (sec.id === "opuscar") opus(node, works);
     else doodle(node, works);
@@ -133,6 +134,26 @@
         }))
       ]));
     });
+  }
+
+  // 01 讲解（精选）：works.json 里标了 featured 的几集，后面一句话链到 ManimGX 独立站
+  function featured(node, sec, works, picks, opts) {
+    var no = numbered(works);
+    var span = picks.length === 2 ? 6 : picks.length === 3 ? 3 : 2;
+    node.appendChild(el("div", { class: "group" }, [
+      el("div", { class: "group-label" }, [el("h3", { text: "精选" }), el("span", { text: S.pad(picks.length) + " / " + S.pad(works.length) + " 部" })]),
+      el("div", { class: "grid" }, picks.map(function (w, j) {
+        var c = S.card(w, { onPlay: opts.onPlay, no: no(w), feature: j === 0 });
+        c.classList.add("rv");
+        if (j) c.style.setProperty("--span", span);
+        c.style.setProperty("--n", j % 3);
+        return c;
+      })),
+      sec.site ? el("p", { class: "group-more rv-fade" }, [
+        el("span", { text: "这里只放了 " + picks.length + " 集。" + (sec.site.more || "") }),
+        el("a", { href: sec.site.url, text: sec.site.label + " →" })
+      ]) : null
+    ]));
   }
 
   // 02 拆解：有视频的错位排；只有交互图的做成索引，悬停时封面跟着光标
