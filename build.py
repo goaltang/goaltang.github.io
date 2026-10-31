@@ -301,6 +301,10 @@ def work_pages(root: pathlib.Path, output: pathlib.Path) -> list[str]:
         if work.get("figure"):
             actions.append('        <a class="btn" href="../figures/%s.html">全屏交互图</a>'
                            % html.escape(str(work["figure"]), quote=True))
+        code_base = (section.get("site") or {}).get("works")
+        if work.get("code") and code_base:
+            actions.append('        <a class="btn" href="%s%s">看代码</a>'
+                           % (html.escape(str(code_base), quote=True), html.escape(str(work["code"]), quote=True)))
         if work.get("bilibili"):
             actions.append('        <a class="btn" href="%s" rel="noopener">在 B 站看</a>'
                            % html.escape(str(work["bilibili"]), quote=True))

@@ -141,6 +141,7 @@
 
     var actions = [];
     if (video) actions.push(el("a", { class: "btn primary magnetic", href: S.fullFilm(work), download: true }, [S.icon("down"), "下载完整版"]));
+    if (work.code && sec.site && sec.site.works) actions.push(el("a", { class: "btn magnetic", href: sec.site.works + work.code, text: "看代码" }));
     if (work.bilibili) actions.push(el("a", { class: "btn magnetic", href: work.bilibili, rel: "noopener" }, [S.icon("out"), "在 B 站看"]));
     if (figure) actions.push(el("a", { class: "btn magnetic", href: figure, target: "_blank", rel: "noopener" }, [S.icon("out"), "全屏打开交互图"]));
 

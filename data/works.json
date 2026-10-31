@@ -11,6 +11,11 @@
       "title": "ManimGX 讲解",
       "ratio": "16:9",
       "desc": "用 Manim 一步步画出来的知识点，按学科放。卡片右下角标着适合哪个阶段。",
+      "site": {
+        "url": "https://goaltang.github.io/manimgx/",
+        "label": "ManimGX 独立站：看代码和动画对照",
+        "works": "https://goaltang.github.io/manimgx/works.html#"
+      },
       "groupBy": "subject",
       "groups": [
         {
@@ -74,7 +79,8 @@
       "title": "矩阵如何变换平面",
       "blurb": "旋转、拉伸、剪切三步走，看懂矩阵的每一列就是基向量 i、j 变换后的位置。考研数学二可视化系列第 1 集。",
       "duration": 26,
-      "ratio": "16:9"
+      "ratio": "16:9",
+      "code": "matrix-transform"
     },
     {
       "id": "pythagoras",
@@ -84,7 +90,8 @@
       "title": "勾股定理：拼图证明",
       "blurb": "把四个全等直角三角形挪来挪去，空出来的面积从 c² 变成 a² + b²，不用一个公式也能看出定理为什么成立。",
       "duration": 150,
-      "ratio": "16:9"
+      "ratio": "16:9",
+      "code": "pythagoras"
     },
     {
       "id": "definite-integral",
@@ -94,7 +101,8 @@
       "title": "定积分：曲线下的面积",
       "blurb": "用越来越细的矩形去逼近 y = x² 下面的面积，矩形无限细时，和就变成了定积分。",
       "duration": 21,
-      "ratio": "16:9"
+      "ratio": "16:9",
+      "code": "definite-integral"
     },
     {
       "id": "tcp-handshake",
@@ -104,7 +112,8 @@
       "title": "TCP 三次握手",
       "blurb": "SYN、SYN-ACK、ACK 三个包来回一趟，客户端和服务器各自确认对方能收也能发，连接才算建好。",
       "duration": 25,
-      "ratio": "16:9"
+      "ratio": "16:9",
+      "code": "tcp-handshake"
     },
     {
       "id": "projectile",
@@ -114,7 +123,8 @@
       "title": "平抛运动",
       "blurb": "水平方向匀速，竖直方向自由落体，拆开看再合起来，最后带着做一道例题。",
       "duration": 156,
-      "ratio": "16:9"
+      "ratio": "16:9",
+      "code": "projectile"
     },
     {
       "id": "roadster",
@@ -124,7 +134,8 @@
       "title": "倒挂的车为什么不掉",
       "blurb": "车底的风扇抽走空气，大气压把车按在路面上；冷气推进器往外喷气调整姿态。用压强和摩擦力讲 Roadster 的原理，有配音。",
       "duration": 116,
-      "ratio": "16:9"
+      "ratio": "16:9",
+      "code": "roadster"
     },
     {
       "id": "dong-force",
@@ -134,7 +145,8 @@
       "title": "侗族榫卯：力怎么传下去",
       "blurb": "屋顶的重量经檩条、柱子落到地面；鼓楼出挑时，瓜柱先把力压到穿枋上。羊角销和木楔让节点越穿越紧。",
       "duration": 51,
-      "ratio": "16:9"
+      "ratio": "16:9",
+      "code": "dong-force"
     },
     {
       "id": "four-stroke",
@@ -149,7 +161,8 @@
       "blurb": "吸气、压缩、做功、排气。飞轮转两周，活塞往复两次，对外只做功一次。配音加背景音乐，机器动画来自 Anatomy。",
       "duration": 58,
       "ratio": "16:9",
-      "figure": "four-stroke-engine"
+      "figure": "four-stroke-engine",
+      "code": "four-stroke"
     },
     {
       "id": "dong-joint",

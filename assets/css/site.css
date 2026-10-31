@@ -209,6 +209,8 @@ html.js.is-ready .wm-ch i { transform: none; transition: transform 1.1s var(--ea
 .chapter-intro p { grid-column: 7 / span 5; margin-top: 12px; color: var(--dim); max-width: 34em; }
 .chapter-intro .stack { grid-column: 7 / span 6; }
 .chapter-intro .stack p, .chapter-intro .stack h2 { grid-column: auto; }
+.chapter-intro .chapter-site a { color: var(--fg); text-decoration: underline; text-decoration-color: var(--hot); text-underline-offset: 4px; }
+.chapter-intro .chapter-site a:hover { color: var(--hot); }
 
 /* ---------- 卡片 ---------- */
 

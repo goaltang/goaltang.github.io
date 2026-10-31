@@ -96,7 +96,8 @@
         el("p", { class: "chapter-no", "aria-hidden": "true", text: no }),
         el("div", { class: "stack rv-fade" }, [
           el("h2", { id: sec.id + "-h", text: sec.title }),
-          el("p", { text: sec.desc })
+          el("p", { text: sec.desc }),
+          sec.site ? el("p", { class: "chapter-site" }, [el("a", { href: sec.site.url, text: sec.site.label })]) : null
         ])
       ])
     ]);

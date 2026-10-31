@@ -19,9 +19,10 @@ class SiteBuildTest(unittest.TestCase):
         (root / "films" / "a.mp4").write_bytes(b"film")
         (root / "data" / "works.json").write_text(json.dumps({
             "site": {"url": "https://example.test/", "films": "films/", "fullBase": "https://example.test/films/"},
-            "sections": [{"id": "manimgx", "name": "讲解", "brand": "ManimGX", "ratio": "16:9"}],
+            "sections": [{"id": "manimgx", "name": "讲解", "brand": "ManimGX", "ratio": "16:9",
+                          "site": {"url": "https://example.test/manimgx/", "works": "https://example.test/manimgx/works.html#"}}],
             "works": [
-                {"id": "a", "series": "manimgx", "title": "A 作品", "blurb": "A 的简介", "duration": 26, "ratio": "16:9"},
+                {"id": "a", "series": "manimgx", "title": "A 作品", "blurb": "A 的简介", "duration": 26, "ratio": "16:9", "code": "a"},
                 {"id": "b", "series": "manimgx", "title": "B 没有封面", "blurb": "B 的简介", "duration": 118, "ratio": "16:9"},
             ],
         }, ensure_ascii=False), encoding="utf-8")
@@ -84,6 +85,8 @@ class SiteBuildTest(unittest.TestCase):
             # 原来那条带播放器的链接还得能用
             self.assertIn('href="../work.html?id=a"', page)
             self.assertIn('href="https://example.test/films/a.mp4"', page)
+            # 独立站里有同名锚点的，链过去看代码
+            self.assertIn('<a class="btn" href="https://example.test/manimgx/works.html#a">看代码</a>', page)
             # 没有封面的作品不出静态页
             self.assertFalse((output / "work" / "b.html").exists())
 
