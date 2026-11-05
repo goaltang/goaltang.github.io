@@ -88,7 +88,7 @@
       stage.innerHTML = "";
       if (which === "figure") {
         stage.className = "stage fig";
-        mode.textContent = "交互图  拖动、点击都可以";
+        mode.textContent = "实时交互拆解  支持旋转与拖拽";
         tc.textContent = "实时";
         stage.appendChild(el("iframe", { src: figure, title: work.title + "（可交互）", loading: "lazy", allow: "fullscreen" }));
         if (byUser) history.replaceState(null, "", "#play");
@@ -120,7 +120,7 @@
     if (S.isSoon(work)) {
       stage.className = "stage " + (S.isTall(work) ? "t" : "w");
       mode.textContent = "待出片";
-      stage.appendChild(el("div", { class: "stage-msg" }, [el("span", { text: "还在做，做好就放上来。" })]));
+      stage.appendChild(el("div", { class: "stage-msg" }, [el("span", { text: "该作品制作中，敬请期待。" })]));
     } else if (figure && (!video || location.hash === "#play")) {
       show("figure");
     } else {
@@ -150,7 +150,7 @@
         return el("div", {}, [el("dt", { text: row[0] }), el("dd", { text: row[1] })]);
       })),
       el("div", { class: "work-text rv-fade" }, [
-        work.blurb || S.isSoon(work) ? el("p", { class: "work-blurb", text: work.blurb || "还在做，简介之后补上。" }) : null,
+        work.blurb || S.isSoon(work) ? el("p", { class: "work-blurb", text: work.blurb || "作品制作中，敬请期待。" }) : null,
         actions.length ? el("div", { class: "work-actions" }, actions) : null
       ])
     ]));

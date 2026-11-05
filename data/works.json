@@ -10,7 +10,7 @@
       "id": "manimgx",
       "title": "ManimGX 讲解",
       "ratio": "16:9",
-      "desc": "用 Manim 一步步画出来的知识点。这里先放三集，卡片右下角标着适合哪个阶段。",
+      "desc": "用代码演绎数理之美。将抽象的定理与公式，还原为直观的几何演化与受力过程。",
       "site": {
         "url": "https://goaltang.github.io/manimgx/",
         "more": "全部作品和每一集的场景代码，都在 ManimGX 独立站。",
@@ -39,7 +39,7 @@
       "id": "anatomy",
       "title": "Anatomy 可交互拆解",
       "ratio": "16:9",
-      "desc": "把机器和老手艺拆成等轴测图。每张图都能看视频，也能自己拖、自己按，看它怎么动。",
+      "desc": "透视机械内核与传统工艺。支持自由旋转与部件联动，看清日常器物如何运转。",
       "groupBy": "group",
       "groups": [
         {
@@ -58,7 +58,7 @@
       "id": "opuscar",
       "title": "lemo-opuscar 知识短片",
       "ratio": "mixed",
-      "desc": "一分钟讲清一件事。横屏的放左边，竖屏的收在长条里滑着看。",
+      "desc": "一分钟拆透一个硬核工程或科学原理。短小凝练，直切要点。",
       "name": "短片",
       "brand": "lemo-opuscar"
     },
@@ -66,7 +66,7 @@
       "id": "anidoodle",
       "title": "anidoodle 动画",
       "ratio": "9:16",
-      "desc": "全部用代码画出来的竖屏小动画，没有字幕，只有画面和声音。",
+      "desc": "纯粹的视听小品。代码生成光影与律动，不设台词，留给画面与声音。",
       "name": "动画",
       "brand": "anidoodle"
     }
@@ -78,7 +78,7 @@
       "subject": "math",
       "level": "大学",
       "title": "矩阵如何变换平面",
-      "blurb": "旋转、拉伸、剪切三步走，看懂矩阵的每一列就是基向量 i、j 变换后的位置。考研数学二可视化系列第 1 集。",
+      "blurb": "基向量 i、j 去了哪里，整个平面就去向哪里。直观还原旋转、拉伸与剪切背后的几何本质。",
       "duration": 26,
       "ratio": "16:9",
       "code": "matrix-transform"
@@ -90,7 +90,7 @@
       "subject": "math",
       "level": "初中",
       "title": "勾股定理：拼图证明",
-      "blurb": "把四个全等直角三角形挪来挪去，空出来的面积从 c² 变成 a² + b²，不用一个公式也能看出定理为什么成立。",
+      "blurb": "四个全等直角三角形在方框内移位，空白区域由 c² 转换为 a² + b²。不用一行公式，一眼看懂几何证明。",
       "duration": 150,
       "ratio": "16:9",
       "code": "pythagoras"
@@ -101,7 +101,7 @@
       "subject": "math",
       "level": "大学",
       "title": "定积分：曲线下的面积",
-      "blurb": "用越来越细的矩形去逼近 y = x² 下面的面积，矩形无限细时，和就变成了定积分。",
+      "blurb": "无限细分的矩形逐步逼近抛物线下方的起伏区域。当分割趋于极限，离散求和便化为连续定积分。",
       "duration": 21,
       "ratio": "16:9",
       "code": "definite-integral"
@@ -112,7 +112,7 @@
       "subject": "cs",
       "level": "大学",
       "title": "TCP 三次握手",
-      "blurb": "SYN、SYN-ACK、ACK 三个包来回一趟，客户端和服务器各自确认对方能收也能发，连接才算建好。",
+      "blurb": "SYN、SYN-ACK、ACK 往返确认。在不可靠的网络信道上，两端如何通过三次交互建立确定连接。",
       "duration": 25,
       "ratio": "16:9",
       "code": "tcp-handshake"
@@ -124,7 +124,7 @@
       "subject": "physics",
       "level": "高中",
       "title": "平抛运动",
-      "blurb": "水平方向匀速，竖直方向自由落体，拆开看再合起来，最后带着做一道例题。",
+      "blurb": "水平方向的匀速与竖直方向的自由落体彼此独立。沿正交轴拆解运动合成，解析经典抛体轨迹。",
       "duration": 156,
       "ratio": "16:9",
       "code": "projectile"
@@ -136,7 +136,7 @@
       "subject": "physics",
       "level": "初中",
       "title": "倒挂的车为什么不掉",
-      "blurb": "车底的风扇抽走空气，大气压把车按在路面上；冷气推进器往外喷气调整姿态。用压强和摩擦力讲 Roadster 的原理，有配音。",
+      "blurb": "车底风扇抽离空气制造极致负压，利用大气压牢牢压紧路面；冷气推进器微调姿态，拆解倒挂飞驰的空气动力学。",
       "duration": 116,
       "ratio": "16:9",
       "code": "roadster"
@@ -147,7 +147,7 @@
       "subject": "physics",
       "level": "初中",
       "title": "侗族榫卯：力怎么传下去",
-      "blurb": "屋顶的重量经檩条、柱子落到地面；鼓楼出挑时，瓜柱先把力压到穿枋上。羊角销和木楔让节点越穿越紧。",
+      "blurb": "屋顶荷载沿檩条、瓜柱逐层下压至穿枋，最终导入立柱。羊角销与木楔协同锁固，受力越大结构咬合越紧。",
       "duration": 51,
       "ratio": "16:9",
       "code": "dong-force"
@@ -162,7 +162,7 @@
       "group": "textbook",
       "level": "初中",
       "title": "四冲程汽油机",
-      "blurb": "吸气、压缩、做功、排气。飞轮转两周，活塞往复两次，对外只做功一次。配音加背景音乐，机器动画来自 Anatomy。",
+      "blurb": "曲轴转动两周，活塞往复四个冲程，仅对外做功一次。透视内燃机紧凑而严密的动力节拍。",
       "duration": 58,
       "ratio": "16:9",
       "figure": "four-stroke-engine",
@@ -173,7 +173,7 @@
       "series": "anatomy",
       "group": "life",
       "title": "侗族穿斗式榫卯节点",
-      "blurb": "柱上开贯通卯口，穿枋越穿越紧，羊角销锁住，木楔挤紧。五步拆开看一个节点。",
+      "blurb": "贯通卯口容纳横向穿枋，羊角销限位、木楔压实。分层拆解东方木作营造的自锁智慧。",
       "duration": 40,
       "ratio": "16:9",
       "figure": "dong-chuandou-joint"
@@ -183,7 +183,7 @@
       "series": "anatomy",
       "group": "life",
       "title": "茅台酒甑蒸馏",
-      "blurb": "酒师不看仪表，只看酒面上的「花」。看花摘酒，是怎么判断酒精度的？",
+      "blurb": "经验丰富的酿酒师不依仪表，凭酒花大小与消散速度定度数。看花摘酒背后的表面张力与汽液平衡。",
       "duration": 44,
       "ratio": "16:9",
       "figure": "moutai-zeng"
@@ -193,7 +193,7 @@
       "series": "anatomy",
       "group": "life",
       "title": "重安江水碾群",
-      "blurb": "沙洲把江水分成高低两汊，引水冲击卧式水轮，立轴带动石滚轮碾磨。",
+      "blurb": "江心沙洲自然分流形成落差，激流冲击卧式水轮，直轴直驱石碾。解析依山就势的民间水利工程。",
       "duration": 56,
       "ratio": "16:9",
       "figure": "zhongan-water-mills"
@@ -203,7 +203,7 @@
       "series": "anatomy",
       "group": "textbook",
       "title": "阿特伍德机",
-      "blurb": "两只砝码挂在一个滑轮上，质量差决定加速度。拖动加减砝码，松闩看它跑。",
+      "blurb": "轻绳跨过定滑轮，微小质量差放慢重力加速度。可交互调节砝码质量，直观验证牛顿第二定律。",
       "ratio": "16:9",
       "figure": "atwood-machine",
       "video": false
@@ -213,7 +213,7 @@
       "series": "anatomy",
       "group": "life",
       "title": "漏电保护器",
-      "blurb": "火线和零线的电流一旦不相等，线圈立刻推动脱扣，断电。",
+      "blurb": "火线与零线同穿互感器，矢量和偏离零点即感应电流。毫秒级触发脱扣机构，瞬间切断回路。",
       "ratio": "16:9",
       "figure": "rcd-breaker",
       "video": false
@@ -223,7 +223,7 @@
       "series": "anatomy",
       "group": "life",
       "title": "电压力锅",
-      "blurb": "水为什么能热过 100°C 还不开锅？加热、密封增压、浮子阀锁盖、限压阀稳压，四步讲清。",
+      "blurb": "气压升高促使沸点攀升。透视浮子阀自锁防开盖与限压阀动态排气的多重联锁保护。",
       "ratio": "16:9",
       "figure": "pressure-cooker",
       "video": false
@@ -233,7 +233,7 @@
       "series": "anatomy",
       "group": "life",
       "title": "安全带卷收器",
-      "blurb": "慢慢拉能拉出来，猛一拽或急刹车，棘爪立刻咬住棘轮。",
+      "blurb": "平缓拉动顺畅自如，急拉或碰撞减速瞬间惯性球推动棘爪。微小角加速度触发机械自锁。",
       "ratio": "16:9",
       "figure": "seatbelt-retractor",
       "video": false
@@ -243,7 +243,7 @@
       "series": "anatomy",
       "group": "life",
       "title": "三相真空断路器",
-      "blurb": "三相并排，每相一只真空灭弧室。触头拉开后拉出金属蒸气电弧，电流过零时熄灭，真空间隙恢复绝缘。",
+      "blurb": "每相配备独立真空灭弧室。触头分离产生的金属蒸气电弧在交流电流过零点瞬间熄灭，利用真空间隙快速绝缘。",
       "ratio": "16:9",
       "figure": "vacuum-circuit-breaker",
       "video": false
@@ -253,7 +253,7 @@
       "series": "anatomy",
       "group": "life",
       "title": "楼宇供水",
-      "blurb": "从市政管网、水箱、加压泵到你家水龙头，每层楼的水压从哪来。",
+      "blurb": "从市政管网低压接入，到屋顶水箱重力稳压与变频泵分区加压。立体梳理高层楼宇的水压流动路径。",
       "ratio": "16:9",
       "figure": "building-water-supply",
       "video": false
@@ -263,7 +263,7 @@
       "series": "anatomy",
       "group": "life",
       "title": "丹寨石桥古法造纸",
-      "blurb": "构树皮经沤煮、脚碓打浆、竹帘抄纸、压榨晒纸四步成纸；帘子压得越深，纸越厚。",
+      "blurb": "构树皮经沤煮、碓打、竹帘抄造与焙纸成型。纸帘荡浆深度与起落手法决定宣纸的厚薄均匀。",
       "ratio": "16:9",
       "figure": "dan-zhai-paper",
       "video": false
@@ -273,7 +273,7 @@
       "series": "anatomy",
       "group": "life",
       "title": "拉链头",
-      "blurb": "一个楔形拉头，把两排链牙咬合又分开。",
+      "blurb": "内部微倾角导轨约束齿牙轨迹，推动链牙凹凸交错互锁与平顺脱扣。",
       "ratio": "16:9",
       "figure": "zipper-slider",
       "video": false
@@ -282,7 +282,7 @@
       "id": "fast-dawodang",
       "series": "opuscar",
       "title": "《坑》中国天眼 FAST",
-      "blurb": "中国天眼 FAST 为什么偏偏选在贵州平塘大窝凼这个坑里？天然的喀斯特洼地像一口现成的锅，雨水渗得走，四周的山把无线电干扰挡在外面。",
+      "blurb": "天然喀斯特洼坑恰如天生巨碗，透水溶洞化解积水隐患，四周环山屏蔽电磁干扰。天眼选址背后的地形密码。",
       "duration": 65,
       "ratio": "9:16"
     },
@@ -290,7 +290,7 @@
       "id": "huajiang-bridge",
       "series": "opuscar",
       "title": "花江峡谷大桥",
-      "blurb": "贵州花江峡谷大桥，主跨 1420 米，桥面离江面 625 米。两岸之间两个多小时的盘山路，过桥只要两分钟。",
+      "blurb": "主跨 1420 米、垂直高差 625 米的峡谷天堑。两个小时的盘山险道压缩为两分钟跨越，航拍重现超级工程骨架。",
       "duration": 65,
       "ratio": "16:9"
     },
@@ -298,7 +298,7 @@
       "id": "hush-noob-frenzy",
       "series": "opuscar",
       "title": "瓦罗兰特 Hush：新手五秒一关",
-      "blurb": "",
+      "blurb": "新手五秒一关：拆解暗影潜行者的身法节奏，复盘实战里的高频破绽与反制时机。",
       "duration": 60,
       "ratio": "16:9"
     },
@@ -322,7 +322,7 @@
       "id": "dingfengbo",
       "series": "anidoodle",
       "title": "定风波",
-      "blurb": "莫听穿林打叶声。苏轼的词意，用水墨画出来。",
+      "blurb": "「莫听穿林打叶声，何妨吟啸且徐行。」水墨浓淡流动，勾勒苏轼词境中的蓑笠与归途。",
       "duration": 20,
       "ratio": "9:16"
     },
@@ -330,7 +330,7 @@
       "id": "whale",
       "series": "anidoodle",
       "title": "鲸",
-      "blurb": "刮画风：黑底上一刀一刀刮出一头鲸。",
+      "blurb": "黑底之上运刀剔刻，自暗夜深处浮现深海巨兽。木刻刮画风格的微光律动。",
       "duration": 20,
       "ratio": "9:16"
     },
@@ -340,7 +340,7 @@
       "pair": "拾星",
       "maker": "Claude Code",
       "title": "拾星（Claude Code 版）",
-      "blurb": "同一段提示词交给 Claude Code 做出来的版本。",
+      "blurb": "偏向线条的有机律动与清冷克制，以简约符号与微动效铺陈星空叙事。",
       "duration": 30,
       "ratio": "9:16"
     },
@@ -350,7 +350,7 @@
       "pair": "拾星",
       "maker": "Grok Build",
       "title": "拾星（Grok Build 版）",
-      "blurb": "同一段提示词交给 Grok Build 做出来的版本。",
+      "blurb": "更重色彩对比、空间纵深与光晕扩散，营造沉浸饱满的情绪张力。",
       "duration": 30,
       "ratio": "9:16"
     }

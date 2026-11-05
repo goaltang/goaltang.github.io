@@ -225,7 +225,7 @@ WORK_TEMPLATE = """<!doctype html>
       <div class="work-actions">
 {actions}
       </div>
-      <p class="static-note">这一页是给搜索引擎和分享卡片看的静态版；<a href="../work.html?id={id_url}{play_hash}">打开带播放器、能动手玩的作品页</a>。</p>
+      <p class="static-note">当前为作品快照；如需体验交互拆解与高清播放，请<a href="../work.html?id={id_url}{play_hash}">进入完整放映厅</a>。</p>
     </div>
   </div>
 </main>

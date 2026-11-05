@@ -411,11 +411,11 @@
 
     return el("div", { class: "duel", id: "duel" }, [
       el("div", { class: "duel-head" }, [
-        el("h3", { text: "《" + pair[0].pair + "》两个版本" }),
-        el("p", { text: "同一段提示词，分别交给 " + pair.map(function (w) { return w.maker; }).join(" 和 ") + "。两版同时放，声音一次听一边。" })
+        el("h3", { text: "《" + pair[0].pair + "》同题对照" }),
+        el("p", { text: "相同的提示词，在两个模型笔下呈现出截然不同的视听质感。两版同步放映，可自由切换声道。" })
       ]),
       sides[0].node,
-      el("div", { class: "duel-mid" }, [tc, bar, playBoth].concat(listen, [el("p", { class: "duel-note", text: "拖动或点刻度条，两版一起跳。" })])),
+      el("div", { class: "duel-mid" }, [tc, bar, playBoth].concat(listen, [el("p", { class: "duel-note", text: "拖动或点击时间刻度，两版同步跳帧。" })])),
       sides[1].node
     ]);
   }
