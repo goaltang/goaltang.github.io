@@ -67,7 +67,7 @@ p { margin: 0; }
 :focus-visible { outline: 2px solid var(--hot); outline-offset: 3px; }
 
 .mono, .tag, .top-tc, .top-nav small, .hero-readout, .chapter-meta, .group-label span,
-.level, .btn, .viewer-tc, .credits dt, .foot-copy, .slate dt, .work-back, .duel-tc, .strip-label, .index-row .no {
+.level, .btn, .viewer-tc, .credits dt, .foot-copy, .slate dt, .work-back, .strip-label, .index-row .no {
   font-family: var(--mono);
   font-stretch: 87.5%;
   letter-spacing: .01em;
@@ -365,35 +365,13 @@ html.js.is-ready .wm-ch i { transform: none; transition: transform 1.1s var(--ea
 .strip-cap p { color: var(--dim); font-size: .88rem; line-height: 1.6; }
 .strip-hint { margin-top: 10px; font-size: .82rem; color: var(--dim); }
 
-/* ---------- 04 动画：竖屏 + 《拾星》对照 ---------- */
+/* ---------- 04 动画：竖屏 ---------- */
 
 .doodle { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gap); margin: 0 var(--pad); }
-.doodle > .card:nth-child(1) { grid-column: 2 / span 4; }
-.doodle > .card:nth-child(2) { grid-column: 8 / span 4; margin-top: 26vh; }
+.doodle > .card:nth-child(1) { grid-column: 1 / span 4; }
+.doodle > .card:nth-child(2) { grid-column: 5 / span 4; margin-top: 18vh; }
+.doodle > .card:nth-child(3) { grid-column: 9 / span 4; margin-top: 6vh; }
 
-.duel {
-  grid-column: 1 / -1; margin-top: clamp(80px, 14vh, 160px);
-  display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 300px) minmax(0, 1fr); gap: var(--gap);
-  padding-top: 18px; border-top: 2px solid var(--hot); align-items: start;
-}
-.duel-head { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: end; margin-bottom: clamp(16px, 3vh, 32px); }
-.duel-head h3 { font-size: clamp(2.2rem, 6vw, 5.6rem); font-weight: 900; line-height: 1; }
-.duel-head p { color: var(--dim); max-width: 22em; }
-.duel-side { min-width: 0; }
-.duel-side .media { cursor: default; max-height: 82svh; width: auto; margin: 0 auto; }
-.duel-side:first-of-type .media { margin-left: auto; margin-right: 0; }
-.duel-side:last-of-type .media { margin-left: 0; margin-right: auto; }
-.duel-side .media.is-loud { outline: 2px solid var(--hot); outline-offset: 4px; }
-.duel-maker { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-top: 12px; }
-.duel-side:first-of-type .duel-maker { flex-direction: row-reverse; }
-.duel-maker b { font-stretch: 75%; font-weight: 800; font-size: clamp(1.3rem, 2.4vw, 2.2rem); line-height: 1.1; }
-.duel-maker a { font-size: .85rem; color: var(--dim); }
-.duel-mid { position: sticky; top: 100px; display: grid; gap: 14px; justify-items: stretch; text-align: center; }
-.duel-tc { font-size: clamp(1.1rem, 1.8vw, 1.6rem); font-variant-numeric: tabular-nums; color: var(--hot); }
-.duel-bar { position: relative; height: 22px; cursor: pointer; background: repeating-linear-gradient(90deg, var(--line-2) 0 1px, transparent 1px 10px) center / 100% 9px no-repeat; }
-.duel-bar i { position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--hot); box-shadow: 0 0 10px var(--hot); transform: translateX(var(--x, 0)); }
-.duel-mid .btn { justify-content: center; }
-.duel-note { font-size: .85rem; color: var(--dim); }
 
 /* ---------- 片尾 ---------- */
 
@@ -567,8 +545,6 @@ html.is-leaving .shutter { transform: none; transition: transform .5s var(--ease
   .strip { height: min(80svh, 640px); }
   .index-row { grid-template-columns: 2.6em minmax(0, 1fr) auto; }
   .index-row .grp, .index-row p { display: none; }
-  .duel { grid-template-columns: 1fr 1fr; }
-  .duel-mid { grid-column: 1 / -1; grid-row: 3; position: static; }
   .slate, .work-text { grid-column: 1 / -1; }
   .work-text { margin-top: 24px; }
   .work-more .grid, .work-more .grid.tall { grid-template-columns: 1fr 1fr; }
@@ -618,15 +594,10 @@ html.is-leaving .shutter { transform: none; transition: transform .5s var(--ease
   .group .card { grid-column: 1 / -1; }
   .films { grid-template-columns: 1fr; }
   .films .card:nth-child(n) { grid-column: 1 / -1; }
-  .doodle > .card:nth-child(1), .doodle > .card:nth-child(2) { grid-column: 1 / -1; margin-top: 0; }
+  .doodle > .card:nth-child(n) { grid-column: 1 / -1; margin-top: 0; }
   .index-row img { display: block; width: 100%; grid-column: 1 / -1; aspect-ratio: 16 / 9; object-fit: cover; order: -1; }
   .index-row { grid-template-columns: 2.4em minmax(0, 1fr) auto; row-gap: 10px; }
   .index-head { flex-direction: column; align-items: start; }
-  .duel { grid-template-columns: 1fr; }
-  .duel-head { grid-template-columns: 1fr; }
-  .duel-maker, .duel-side:first-of-type .duel-maker { flex-direction: column; gap: 2px; }
-  .duel-side .media { max-height: none; width: 100%; }
-  .duel-side:first-of-type .media { margin-right: auto; }
   .slate { grid-template-columns: 1fr 1fr; }
   .work-more .grid { grid-template-columns: 1fr; }
   .work-more .grid.tall { grid-template-columns: 1fr 1fr; }
@@ -675,8 +646,6 @@ html.is-leaving .shutter { transform: none; transition: transform .5s var(--ease
   .viewer-close { min-height: 44px; padding: 0 18px; }
   .hero-cue { min-width: 84px; min-height: 84px; }
   .skip { padding: 12px 18px; }
-  .duel-bar { height: 44px; }
-  .duel-bar i { top: 11px; bottom: 11px; }
   .credits a, .work-back { display: inline-block; padding-top: 8px; padding-bottom: 8px; }
   .work-back { padding-top: 12px; padding-bottom: 12px; }
   .foot-mail { display: inline-block; padding-bottom: 6px; }
@@ -690,7 +659,6 @@ html.is-leaving .shutter { transform: none; transition: transform .5s var(--ease
   .top-home, .top-nav a { min-height: 44px; }
   .top-nav a { align-items: center; }
   .card-title a { display: flex; align-items: center; min-height: 44px; }
-  .duel-maker a { display: inline-flex; align-items: center; min-height: 44px; }
 }
 
 /* ---------- 减少动效 ---------- */
@@ -704,3 +672,20 @@ html.is-leaving .shutter { transform: none; transition: transform .5s var(--ease
   .shutter { display: none; }
   .rec { animation: none; }
 }
+
+/* ---------- 全屏播放：竖屏片整幅显示，不裁切 ---------- */
+/* 带前缀的写法单独成条，否则不认识它的浏览器会整条丢掉 */
+video:fullscreen {
+  position: fixed !important; inset: 0 !important; margin: 0 !important;
+  width: 100% !important; height: 100% !important; min-height: 0 !important; max-width: none !important; max-height: none !important;
+  object-fit: contain !important; object-position: center !important;
+  transform: none !important; clip-path: none !important; filter: none !important; background: #000;
+}
+video:-webkit-full-screen {
+  position: fixed !important; inset: 0 !important; margin: 0 !important;
+  width: 100% !important; height: 100% !important; min-height: 0 !important; max-width: none !important; max-height: none !important;
+  object-fit: contain !important; object-position: center !important;
+  transform: none !important; clip-path: none !important; filter: none !important; background: #000;
+}
+/* 有些浏览器（部分安卓 WebView、微信内置浏览器）不把全屏视频提到最上层，祖先的 transform / clip-path / overflow 会把它裁掉。common.js 在全屏期间给祖先打上 data-fs-anc */
+[data-fs-anc] { transform: none !important; clip-path: none !important; filter: none !important; overflow: visible !important; contain: none !important; max-height: none !important; }

@@ -1,4 +1,4 @@
-/* 首页：首屏胶片墙、四卷作品、放映窗、竖屏长条、《拾星》对照。 */
+/* 首页：首屏胶片墙、四卷作品、放映窗、竖屏长条。 */
 (function () {
   "use strict";
   var S = window.Site;
@@ -224,17 +224,15 @@
     ]));
   }
 
-  // 04 动画：两支竖屏错开放，下面是《拾星》对照
+  // 04 动画：竖屏错开放
   function doodle(node, works) {
-    var solo = works.filter(function (w) { return !w.pair; });
-    var pairs = works.filter(function (w) { return w.pair; });
     var no = numbered(works);
-    node.appendChild(el("div", { class: "doodle" }, solo.map(function (w, j) {
+    node.appendChild(el("div", { class: "doodle" }, works.map(function (w, j) {
       var c = S.card(w, { onPlay: openViewer, no: no(w) });
       c.classList.add("rv");
       c.style.setProperty("--n", j);
       return c;
-    }).concat(pairs.length === 2 ? [duel(pairs)] : [])));
+    })));
   }
 
   /* ---------- 竖屏长条：上下滑，停在哪支就静音放哪支 ---------- */
@@ -318,106 +316,6 @@
       box.scrollBy(to);
     });
     return wrap;
-  }
-
-  /* ---------- 《拾星》：同一提示词，两个 AI，并排同步放 ---------- */
-
-  function duel(pair) {
-    var sides = pair.map(function (w) {
-      var video = el("video", { playsinline: true, muted: true, preload: "none", poster: S.cover(w), "aria-label": w.title });
-      video.muted = true;
-      var media = el("div", { class: "media t" }, [
-        el("span", { class: "media-clip" }, [video]),
-        el("span", { class: "tag bl", "aria-hidden": "true", text: w.maker }),
-        S.marks()
-      ]);
-      video.style.clipPath = "none";
-      return {
-        work: w, video: video, media: media,
-        node: el("div", { class: "duel-side rv" }, [
-          media,
-          el("div", { class: "duel-maker" }, [el("b", { text: w.maker }), el("a", { href: S.page(w), text: "单独看这一版" })])
-        ])
-      };
-    });
-
-    var tc = el("p", { class: "duel-tc", "aria-hidden": "true", text: "00:00:00" });
-    var head = el("i");
-    var bar = el("div", { class: "duel-bar", role: "slider", tabindex: "0", "aria-label": "两版一起跳到", "aria-valuemin": "0", "aria-valuemax": String(pair[0].duration), "aria-valuenow": "0" }, [head]);
-    var playBoth = el("button", { class: "btn primary magnetic", type: "button" }, [S.icon("play"), el("span", { text: "两版一起放" })]);
-    var listen = sides.map(function (s) {
-      return el("button", { class: "btn magnetic", type: "button", "aria-pressed": "false" }, [S.icon("sound"), "听 " + s.work.maker + " 版"]);
-    });
-
-    function ensureSrc(s) { if (!s.video.getAttribute("src")) s.video.src = S.film(s.work); }
-    function playing() { return sides.some(function (s) { return !s.video.paused; }); }
-    function setPlayLabel() {
-      var on = playing();
-      playBoth.replaceChild(S.icon(on ? "pause" : "play"), playBoth.firstChild);
-      playBoth.lastChild.textContent = on ? "两版一起停" : "两版一起放";
-    }
-    function startBoth(fromZero) {
-      sides.forEach(function (s) { ensureSrc(s); if (fromZero) s.video.currentTime = 0; });
-      sides.forEach(function (s) { var p = s.video.play(); if (p && p.catch) p.catch(function () {}); });
-    }
-    function setLoud(index) {
-      sides.forEach(function (s, i) {
-        s.video.muted = i !== index;
-        s.media.classList.toggle("is-loud", i === index);
-        listen[i].setAttribute("aria-pressed", i === index ? "true" : "false");
-      });
-    }
-    function seek(ratio) {
-      sides.forEach(function (s) {
-        ensureSrc(s);
-        var d = s.video.duration || s.work.duration;
-        s.video.currentTime = Math.max(0, Math.min(d - 0.05, ratio * d));
-      });
-    }
-
-    playBoth.addEventListener("click", function () {
-      if (playing()) sides.forEach(function (s) { s.video.pause(); });
-      else startBoth(sides[0].video.ended || !sides[0].video.currentTime);
-    });
-    listen.forEach(function (btn, i) {
-      btn.addEventListener("click", function () {
-        var already = btn.getAttribute("aria-pressed") === "true";
-        setLoud(already ? -1 : i);
-        if (!already && !playing()) startBoth(true);
-      });
-    });
-    bar.addEventListener("click", function (e) {
-      var r = bar.getBoundingClientRect();
-      seek((e.clientX - r.left) / r.width);
-    });
-    bar.addEventListener("keydown", function (e) {
-      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
-      e.preventDefault();
-      var v = sides[0].video;
-      seek(((v.currentTime || 0) + (e.key === "ArrowRight" ? 2 : -2)) / (v.duration || pair[0].duration));
-    });
-    sides.forEach(function (s) {
-      s.video.addEventListener("play", setPlayLabel);
-      s.video.addEventListener("pause", setPlayLabel);
-      s.video.addEventListener("error", function () { s.video.removeAttribute("src"); });
-    });
-    sides[0].video.addEventListener("timeupdate", function () {
-      var v = sides[0].video;
-      var d = v.duration || pair[0].duration;
-      tc.textContent = S.timecode(v.currentTime);
-      bar.style.setProperty("--x", (v.currentTime / d * bar.clientWidth) + "px");
-      bar.setAttribute("aria-valuenow", String(Math.round(v.currentTime)));
-    });
-
-    return el("div", { class: "duel", id: "duel" }, [
-      el("div", { class: "duel-head" }, [
-        el("h3", { text: "《" + pair[0].pair + "》同题对照" }),
-        el("p", { text: "相同的提示词，在两个模型笔下呈现出截然不同的视听质感。两版同步放映，可自由切换声道。" })
-      ]),
-      sides[0].node,
-      el("div", { class: "duel-mid" }, [tc, bar, playBoth].concat(listen, [el("p", { class: "duel-note", text: "拖动或点击时间刻度，两版同步跳帧。" })])),
-      sides[1].node
-    ]);
   }
 
   /* ---------- 放映窗：点卡片，带声音放 ---------- */

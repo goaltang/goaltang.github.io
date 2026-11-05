@@ -337,20 +337,9 @@
     {
       "id": "star-cc",
       "series": "anidoodle",
-      "pair": "拾星",
       "maker": "Claude Code",
-      "title": "拾星（Claude Code 版）",
+      "title": "拾星",
       "blurb": "偏向线条的有机律动与清冷克制，以简约符号与微动效铺陈星空叙事。",
-      "duration": 30,
-      "ratio": "9:16"
-    },
-    {
-      "id": "star-grok",
-      "series": "anidoodle",
-      "pair": "拾星",
-      "maker": "Grok Build",
-      "title": "拾星（Grok Build 版）",
-      "blurb": "更重色彩对比、空间纵深与光晕扩散，营造沉浸饱满的情绪张力。",
       "duration": 30,
       "ratio": "9:16"
     }

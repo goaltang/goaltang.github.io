@@ -261,6 +261,16 @@
     return span;
   }
 
+  // 全屏：全屏期间给视频的祖先打上 data-fs-anc，CSS 放开它们的 transform / clip-path / overflow，
+  // 免得不把全屏元素提到最上层的浏览器只显示竖屏片的上半截。
+  function onFullscreen() {
+    var fs = document.fullscreenElement || document.webkitFullscreenElement || null;
+    [].forEach.call(document.querySelectorAll("[data-fs-anc]"), function (n) { n.removeAttribute("data-fs-anc"); });
+    for (var n = fs && fs.parentElement; n && n !== document.documentElement; n = n.parentElement) n.setAttribute("data-fs-anc", "");
+  }
+  document.addEventListener("fullscreenchange", onFullscreen);
+  document.addEventListener("webkitfullscreenchange", onFullscreen);
+
   window.Site = {
     el: el, marks: marks, icon: icon, load: load, state: state, card: card,
     pad: pad, duration: duration, durationWords: durationWords, timecode: timecode,
